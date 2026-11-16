@@ -42,7 +42,7 @@ Firebase (needed for Phase 12): Levi was given step-by-step instructions on 2026
 - (nothing)
 
 ## Known bugs / issues
-- **From Levi's playtest (fix in Phase 10):** mallet lags behind the mouse (speed cap + smoothing), hitbox feels off, aiming too hard, Normal bot far too strong (Levi lost 7-0 three times).
+- **From Levi's playtest (fix in Phase 10):** mallet lags behind the mouse (speed cap + smoothing), hitbox feels off, aiming too hard, Normal bot far too strong (Levi lost 7-0 three times), and the bot feels robotic (same moves, same rhythm, never takes risks).
 - Feel/balance has only been checked with bots and screenshots, not by a human yet.
 - Online over the real PeerJS broker could NOT be tested from the sandbox (no access to 0.peerjs.com). Only the `?net=local` transport was tested. First real test must be done by Levi.
 - Audio was never listened to (headless sandbox).

@@ -36,6 +36,20 @@ Levi's feedback, in his own words (translated): *"Controls are bad. The puck lag
 - The bot's mallet speed and reaction must stay clearly *below* what a human with the new 1:1 controls can do at Rookie/Easy/Normal. Hard and Pro may match it.
 - In v1 even "Easy" probably felt hard because the human was handicapped. After the controls fix, **ask Levi to play each level once** and tune `src/ai/botConfig.ts` from his feedback. Default menu choice: Easy.
 
+### Human-like bot ("less robotic")
+Levi: *"The bot feels too much like a bot. Make it feel more like a human, who sometimes takes a risk and doesn't always use the same moves and rhythm."*
+The v1 bot always does the same thing (defend line → get behind puck → shoot straight or bank) at a steady decision rhythm. Requirements for all levels:
+- **Shot variety with memory:** a repertoire of at least 5 moves: straight shot, bank left, bank right, double bank, soft push/"dink", fake (wind up one way, hit the other), wait-and-pounce, and a quick deflection without taking possession. Choose by weighted random, and **lower the weight of the last 2–3 moves used**, so it doesn't repeat itself.
+- **Irregular rhythm:** sometimes it hits immediately, sometimes it controls the puck and waits 0.3–1.5 s while moving the mallet around it (like a person lining up a shot), sometimes it rushes. Reaction delays vary per decision (random within a range), not a fixed timer.
+- **Risk-taking:** it sometimes **leaves its goal to attack aggressively** (higher chance when behind, at match point for the opponent, or late in timed mode), and sometimes tries a hard, low-percentage shot. That opens chances for the player.
+- **Mood:** after conceding 2 in a row it gets a bit reckless (faster, more risks, more mistakes) for ~10 s. When leading by 3+ it gets lazier and more casual. All levels use this, with the effect scaled by level.
+- **Idle motion:** while the puck is on the other side, the mallet drifts and shifts slightly (no frozen statue, no perfect centring), and sometimes "reads" the wrong side.
+- **Human mistakes:** occasional mistiming (arrives a bit early or late), over-committing to a fake by the player, mis-hitting (glancing contact). More often on lower levels, rare but present on Pro.
+- **Adapts to the player (Hard/Pro):** remembers which side the player scores from most and leans that way, so the player has to vary too.
+- **Personality per level:** e.g. Rookie = cautious and slow, Easy = playful but sloppy, Normal = balanced, Hard = aggressive bank-shot lover, Pro = patient and tricky. Campaign bosses get their own personalities.
+- Implementation hint: split `src/ai/bot.ts` into perception (with noise/delay) → decision (state machine: defend / possess / line up / shoot / recover, with weighted move choice) → motor (move toward the target with human-like speed curves, not perfect straight lines). All personality numbers live in `src/ai/botConfig.ts`.
+- Check: in a bot-vs-bot test, log the moves used; no single move should be more than ~40% of all shots, and the time between hits should vary visibly (not one fixed interval).
+
 ---
 
 ## B. Single-player campaign

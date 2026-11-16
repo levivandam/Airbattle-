@@ -86,6 +86,7 @@ Spec: `SPEC.md`. Working rules: `CLAUDE.md`.
 - [ ] Aim line after hard hits (+ settings toggle)
 - [ ] WASD/arrows solo with auto-switch + dash (Shift/Space) with cooldown ring
 - [ ] Bot: Rookie / Easy / Normal / Hard / Pro / Adaptive, all clearly weaker than v1 at the same name; default Easy
+- [ ] Human-like bot: move repertoire with anti-repeat memory, irregular rhythm, risk-taking, mood, idle motion, human mistakes, personality per level (SPEC-V2 §A 'Human-like bot')
 - [ ] New vitest tests (fast mallet always hits; mallet reaches target in 1 tick)
 - [ ] **Ask Levi to playtest** (controls + one game per bot level) and tune from his feedback
 **Done when:** Levi says hitting and aiming feel good and Normal is a fair fight.
