@@ -64,7 +64,7 @@ Spec: `SPEC.md`. Working rules: `CLAUDE.md`.
 - [x] Speed Boost, Ghost Puck, Fast Puck, Shrink, Reverse, Ice Rink (SPEC §7.2) — offline and online
 - [ ] Balance pass on all 12 after human playtesting; record tuning in PROGRESS.md
 
-## Phase 8 — Quick match (matchmaking) — NEEDS LEVI
+## Phase 8 — (superseded by Phases 12 and 14 in the v2 plan below)
 - [ ] **Stop and ask Levi** to create a free Firebase or Supabase project (explain step by step) and give you the public config keys
 - [ ] Simple lobby/queue: waiting players pair up, then hand off to the PeerJS connection
 - [ ] "Quick match" button appears only when configured
@@ -73,3 +73,49 @@ Spec: `SPEC.md`. Working rules: `CLAUDE.md`.
 - [ ] One full test pass on laptop + phone (all modes), fix bugs
 - [x] README for Levi: how to play, how to share, how the site updates
 - [ ] Performance check (fps on Low/High)
+
+
+---
+
+# v2 plan (after Levi's first playtest) — see `SPEC-V2.md`
+
+## Phase 10 — Controls, feel & bot rebalance (DO FIRST)
+- [ ] Mallet 1:1 under pointer, no smoothing, high safety cap, swept mallet–puck collision (SPEC-V2 §A)
+- [ ] Hit strength from real mallet velocity; raise PUCK_MAX, retune; puck radius ~0.045
+- [ ] Local mallet rendered at latest target; pick at grip height; hide cursor over table
+- [ ] Aim line after hard hits (+ settings toggle)
+- [ ] WASD/arrows solo with auto-switch + dash (Shift/Space) with cooldown ring
+- [ ] Bot: Rookie / Easy / Normal / Hard / Pro / Adaptive, all clearly weaker than v1 at the same name; default Easy
+- [ ] New vitest tests (fast mallet always hits; mallet reaches target in 1 tick)
+- [ ] **Ask Levi to playtest** (controls + one game per bot level) and tune from his feedback
+**Done when:** Levi says hitting and aiming feel good and Normal is a fair fight.
+
+## Phase 11 — Campaign engine + World 1
+- [ ] Physics: segment walls, circular bumpers, kinematic moving/rotating obstacles (standard table unchanged)
+- [ ] Level data format + loader; arena of any shape; camera fit/follow for big tracks
+- [ ] Targets, gates, finish zones, shot/time counters, win/lose + star conditions, retry
+- [ ] Campaign menu button, world map with nodes + stars, unlock rules, localStorage progress
+- [ ] World 1 (5 levels + boss "The Wall"), each verified solvable; first mallet-skin unlock
+**Done when:** World 1 is playable start to finish with stars and the boss reward.
+
+## Phase 12 — Quick match (matchmaking) — NEEDS LEVI'S FIREBASE CONFIG
+- [ ] Levi created the Firebase project (Realtime Database + Anonymous + Google auth, domain authorised) and gave the web config → `src/net/firebaseConfig.ts`
+- [ ] `database.rules.json` + plain-Dutch instructions for Levi to paste them
+- [ ] Nickname, queue with onDisconnect, transaction matching, hand-off to PeerJS room
+- [ ] Bot while waiting + "Opponent found" accept banner
+- [ ] Optional TURN server in PeerJS config (if Levi made an account)
+- [ ] Test with two tabs (two anonymous users) and once on two real devices with Levi
+If the Firebase config is not there yet when you reach this phase: ask Levi (steps are in PROGRESS.md) and continue with Phase 13 meanwhile.
+
+## Phase 13 — Campaign Worlds 2–4 + rewards
+- [ ] World 2 Obstacle Alley (+ boss "Bumper King", neon table unlock)
+- [ ] World 3 Puck Course: bigger tracks (+ boss "Speed Demon", ice table unlock)
+- [ ] World 4 Bot Gauntlet (+ boss "The Champion", champion table unlock)
+- [ ] Skins + table themes selectable in Settings; bonus skin per fully-starred world
+- [ ] Table theme choice used in vs bot / local / online (host decides)
+
+## Phase 14 — Accounts & rating
+- [ ] "Sign in with Google" (Settings + Quick match screen); nickname and campaign progress synced to Firebase
+- [ ] Elo rating for signed-in players, rating-band matching, dual result reporting, leaver rule
+- [ ] Database rules that limit cheating; tell Levi the honest limits
+- [ ] Final QA on laptop + phone for everything

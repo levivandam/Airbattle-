@@ -4,7 +4,7 @@ You may be **Fable** (first builder) or **Opus** (taking over when Fable ran out
 
 ## Start of every session (mandatory)
 1. Read `PROGRESS.md` first — it tells you exactly where work stopped.
-2. Read `PLAN.md` (phases + checkboxes) and the relevant parts of `SPEC.md`.
+2. Read `PLAN.md` (phases + checkboxes), `SPEC-V2.md` (latest decisions — wins over SPEC.md) and the relevant parts of `SPEC.md`.
 3. Run `git log --oneline -20` and `git status` to confirm the state matches PROGRESS.md. If there are uncommitted changes from a previous session, inspect them: keep them if they build and make sense, otherwise stash them and note it.
 4. `npm install && npm run build` — confirm the project builds before changing anything.
 5. Continue from the **"Next step"** in PROGRESS.md. Do not restart, re-architect, or rewrite working code.
@@ -35,6 +35,7 @@ src/
     match.ts              rules: score, modes, golden goal, match point, resets
     state.ts              GameState type (serializable — used for online sync)
     powerups/             registry + one file per power-up (data + apply/expire)
+  campaign/               level data (levels/w1-1.ts …), level runner, progress (Phase 11+)
   ai/
     bot.ts                prediction + decision
     botConfig.ts          difficulty parameter tables + adaptive logic
@@ -42,7 +43,7 @@ src/
   render/                 three.js scene, table, mallets, puck, effects, camera
   ui/                     HTML/CSS overlay screens + HUD
   audio/                  sfx.ts, music.ts (adaptive L0–L3)
-  net/                    peer.ts (PeerJS), protocol.ts, sync.ts
+  net/                    peer.ts (PeerJS), protocol.ts, online.ts, matchmaking.ts + firebaseConfig.ts (Phase 12+)
   storage/                settings.ts, stats.ts (localStorage, try/catch)
 public/audio/             optional audio files (licensed, see CREDITS.md)
 ```

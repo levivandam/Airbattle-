@@ -3,15 +3,19 @@
 > Update this file before every push. The next model only has the repo — write so they can continue instantly.
 
 ## Current status
-- **Phase:** 6–7 built, waiting for human playtest. Phase 8 (matchmaking) blocked on Levi. Phase 9 partly done.
-- **Last worked by:** Fable (2026-11-16)
+- **Phase:** 10 (next) — v1 (Phases 0–7) is live. Levi playtested it; v2 plan written in `SPEC-V2.md` + PLAN.md Phases 10–14.
+- **Last worked by:** Opus (v2 planning, 2026-11-16) after Fable built Phases 0–7
 - **Live URL:** https://levivandam.github.io/Airbattle-/ (live)
 
 ## Next step
-1. **Wait for Levi's playtest feedback** (feel of controls/puck speed, bot difficulty, sound/music mix, power-up balance, and whether online works between two real devices). Tune numbers: physics in `src/core/physics.ts` + `T` in `core/state.ts`, bot in `src/ai/botConfig.ts`, power-up durations in `DEFS` (`src/core/powerups/index.ts`), music in `src/audio/music.ts`.
-2. If real-device online fails to connect on some networks: PeerJS uses only STUN by default; add a TURN server to the `Peer` options in `src/net/peer.ts` (needs a free TURN account, ask Levi).
-3. Phase 8 (Quick match): ask Levi to create a Firebase/Supabase project first (see PLAN.md).
-4. Phase 9: final QA pass on real laptop + phone.
+**Read `SPEC-V2.md` first.** Then start **Phase 10** (controls, feel, WASD solo, bot rebalance). Root causes of the bad controls are listed in SPEC-V2 §A: start in `src/core/physics.ts` (`moveMallet`, `collideMallet`, `stepPuck`), `src/core/state.ts` (`T`), `src/game.ts` (HumanPointer), `src/render/view.ts` (pick plane, mallet interpolation), `src/ai/botConfig.ts`.
+
+Firebase (needed for Phase 12): Levi was given step-by-step instructions on 2026-11-16 and will paste the `firebaseConfig` into the chat. If it's not in the repo or chat yet, ask him again. The steps:
+1. https://console.firebase.google.com → Add project "airbattle" → Google Analytics off → Create.
+2. Build → Realtime Database → Create database → location Belgium (europe-west1) → "Start in locked mode".
+3. Build → Authentication → Get started → Sign-in method → enable **Anonymous** and **Google**.
+4. Authentication → Settings → Authorized domains → Add `levivandam.github.io`.
+5. Project settings (gear) → "Your apps" → web icon `</>` → nickname "airbattle" → Register → copy the `firebaseConfig = {...}` block and give it to Claude.
 
 ## How to check things quickly
 - `npm test` — headless physics/bot sanity tests (vitest).
@@ -38,17 +42,20 @@
 - (nothing)
 
 ## Known bugs / issues
+- **From Levi's playtest (fix in Phase 10):** mallet lags behind the mouse (speed cap + smoothing), hitbox feels off, aiming too hard, Normal bot far too strong (Levi lost 7-0 three times).
 - Feel/balance has only been checked with bots and screenshots, not by a human yet.
 - Online over the real PeerJS broker could NOT be tested from the sandbox (no access to 0.peerjs.com). Only the `?net=local` transport was tested. First real test must be done by Levi.
 - Audio was never listened to (headless sandbox).
 - No TURN server: players behind strict NAT (some mobile/school networks) may fail to connect; the UI shows a friendly error after 12 s.
 
 ## Decisions log
+- 2026-11-16 — v2 decisions with Levi: mallet exactly under the mouse; WASD solo with auto-switch, fast + dash; 5 bot levels (Rookie–Pro) + Adaptive, Normal ≈ 50/50; campaign = 4 worlds × (5 levels + boss) with stars, skins and table themes as rewards (power-ups stay unlocked), level types: targets, obstacles, bigger puck courses, bot challenges; matchmaking via Firebase RTDB + anonymous auth, bot while waiting, nickname; Elo rating only for Google-signed-in players.
 - 2026-11-16 — Stack: Vite + TS + Three.js, own 2D physics, PeerJS for online, procedural adaptive music by default. Offline game fully finished (Phase 5) before online work (Phase 6). Core 6 power-ups first, extra 6 later. Matchmaking last and needs Levi's Firebase/Supabase account.
 
 - 2026-11-16 — Extra 6 power-ups built together with the core 6 (same data-driven system); `enabledTypes()` in `ui/app.ts` returns ALL_TYPES.
 
 ## Things Levi needs to do
 - [x] Enable GitHub Pages with Source = GitHub Actions (done, deploys work)
-- [ ] (Phase 8) Create a free Firebase or Supabase project
+- [ ] (Phase 12) Create the Firebase project and send the web config (steps under 'Next step')
+- [ ] (Phase 12, optional) Free TURN server account (Metered or Cloudflare) for better connections with strangers
 - [ ] (Optional) Supply CC0 music stems if he prefers real tracks over generated music
