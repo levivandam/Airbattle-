@@ -6,7 +6,8 @@ import { Controller, Game, MatchConfig, MatchKind } from '../game';
 import { KeyboardController } from '../input/keyboard';
 import { PointerInput } from '../input/pointer';
 import { View } from '../render/view';
-import { MALLET_COLORS, Settings, hex, matchMode, onSettings, settings, updateSettings } from '../storage/settings';
+import { progress } from '../campaign/progress';
+import { MALLET_COLORS, SKINS, Settings, hex, matchMode, onSettings, settings, updateSettings } from '../storage/settings';
 import { resetStats, saveStats, speedLabel, stats } from '../storage/stats';
 import { button, el, root } from './dom';
 import { Hud, toast } from './hud';
@@ -24,6 +25,9 @@ export class App {
   onlineMenu: (() => void) | null = null;
   onLeaveMatch: (() => void) | null = null;
   onRematch: (() => boolean) | null = null;
+  /** set by the campaign module */
+  campaignMenu: (() => void) | null = null;
+  onRestart: (() => boolean) | null = null;
   /** fired on every screen change: 'lobby' or 'match' (music) */
   onScene: (scene: 'lobby' | 'match') => void = () => {};
   onUnlock: () => void = () => {};
@@ -60,7 +64,7 @@ export class App {
     game.onEvent((e, s) => {
       if (game.config.kind === 'attract') return;
       hud.onEvent(e, s);
-      if (e.t === 'over') {
+      if (e.t === 'over' && game.config.kind !== 'campaign') {
         this.record(e.winner);
         clearTimeout(this.resultTimer);
         this.resultTimer = window.setTimeout(() => this.results(e.winner), 2600);
@@ -80,7 +84,7 @@ export class App {
   }
   private canPause(): boolean {
     const k = this.game.config.kind;
-    return k === 'bot' || k === 'local';
+    return k === 'bot' || k === 'local' || k === 'campaign';
   }
 
   private show(node: HTMLElement): void {
@@ -151,8 +155,9 @@ export class App {
     const logo = el('h1', 'logo');
     logo.append('AIR', el('span', '', 'BATTLE'));
     const p = el('div', 'panel stack');
+    if (this.campaignMenu) p.append(button('Campaign', 'primary', () => this.campaignMenu!()));
     p.append(
-      button('Play vs Bot', 'primary', () => this.setup('bot')),
+      button('Play vs Bot', this.campaignMenu ? '' : 'primary', () => this.setup('bot')),
       button('Local 2 Players', 'blue', () => this.setup('local')),
     );
     if (this.onlineMenu) p.append(button('Online', '', () => this.onlineMenu!()));
@@ -255,7 +260,7 @@ export class App {
 
   /** Mallet colours for [player 0, player 1], avoiding two identical mallets. */
   colors(localIs: PlayerId = 0, otherColor = -1): [number, number] {
-    const mine = MALLET_COLORS[settings.color];
+    const mine = SKINS[settings.skin] && progress.skins.includes(settings.skin) ? SKINS[settings.skin].color : MALLET_COLORS[settings.color];
     let theirs = otherColor >= 0 ? otherColor : mine === MALLET_COLORS[1] ? MALLET_COLORS[0] : MALLET_COLORS[1];
     if (theirs === mine) theirs = mine === MALLET_COLORS[1] ? MALLET_COLORS[0] : MALLET_COLORS[1];
     return localIs === 0 ? [mine, theirs] : [theirs, mine];
@@ -277,15 +282,26 @@ export class App {
     const controllers = kind === 'local' ? [new KeyboardController(1), ...extra] : extra;
     this.view.setCamera(local === 1, kind === 'local' ? (touch ? 0 : 9) : 15);
     this.game.start(config, controllers);
-    const cols = this.colors(local, otherColor);
-    this.view.setColors(0, cols[0], kind === 'local' ? 0xf4f0e6 : local === 0 ? MALLET_COLORS[settings.accent] : 0xf4f0e6);
-    this.view.setColors(1, cols[1], local === 1 ? MALLET_COLORS[settings.accent] : 0xf4f0e6);
     this.names = kind === 'bot' ? ['YOU', 'BOT'] : kind === 'local' ? ['P1', 'P2'] : ['YOU', 'RIVAL'];
+    this.beginHud(kind, local, otherColor, this.names, false);
+  }
+
+  /** Paint the mallets, show the HUD and switch the music to match mode. */
+  beginHud(kind: MatchKind, local: PlayerId, otherColor: number, names: [string, string], info: boolean): void {
+    clearTimeout(this.resultTimer);
+    const touch = PointerInput.touchSeen;
+    const cols = this.colors(local, otherColor);
+    const skinned = !!SKINS[settings.skin] && progress.skins.includes(settings.skin) && kind !== 'local';
+    const accent = (p: PlayerId) => (kind !== 'local' && p === local ? MALLET_COLORS[settings.accent] : 0xf4f0e6);
+    this.view.setColors(0, cols[0], accent(0), skinned && local === 0);
+    this.view.setColors(1, cols[1], accent(1), skinned && local === 1);
+    this.names = [names[0].trim(), names[1]];
     this.hud.show({
       names: this.names,
       colors: [hex(cols[local]), hex(cols[local === 0 ? 1 : 0])],
       local,
       split: kind === 'local' && touch,
+      info,
     });
     this.pauseBtn.textContent = this.canPause() ? 'II' : '✕';
     this.pauseBtn.setAttribute('aria-label', this.canPause() ? 'Pause' : 'Leave match');
@@ -300,7 +316,13 @@ export class App {
     const p = el('div', 'panel stack');
     p.append(el('h2', '', online ? 'Leave match?' : 'Paused'));
     p.append(button(online ? 'Keep playing' : 'Resume', 'primary', () => this.resume()));
-    if (!online) p.append(button('Restart', '', () => this.startMatch(this.game.config.kind)));
+    if (!online)
+      p.append(
+        button('Restart', '', () => {
+          if (this.onRestart && this.onRestart()) return;
+          this.startMatch(this.game.config.kind);
+        }),
+      );
     p.append(
       button(online ? 'Leave' : 'Main menu', 'ghost', () => {
         this.onLeaveMatch?.();
@@ -432,7 +454,27 @@ export class App {
       paint();
       return wrap;
     };
-    p.append(el('h3', '', 'Your mallet'), sw('color', 'Mallet colour'), el('h3', '', 'Ring colour'), sw('accent', 'Ring colour'));
+    const colorRow = sw('color', 'Mallet colour');
+    colorRow.addEventListener('click', () => updateSettings({ skin: '' }), true);
+    p.append(el('h3', '', 'Your mallet'), colorRow);
+    const owned = progress.skins.filter((k) => SKINS[k]);
+    if (owned.length) {
+      const row = el('div', 'swatches');
+      const paintSkins = () =>
+        row.replaceChildren(
+          ...owned.map((k) => {
+            const b = el('button', 'swatch skin' + (settings.skin === k ? ' sel' : ''), '', { 'aria-label': SKINS[k].label + ' skin', type: 'button' });
+            b.addEventListener('click', () => {
+              updateSettings({ skin: settings.skin === k ? '' : k });
+              paintSkins();
+            });
+            return b;
+          }),
+        );
+      paintSkins();
+      p.append(el('h3', '', 'Campaign skins'), row);
+    }
+    p.append(el('h3', '', 'Ring colour'), sw('accent', 'Ring colour'));
     const back = button('Back', 'primary', () => this.menu());
     back.style.cssText = 'width:100%;margin-top:16px';
     p.append(back);
@@ -440,7 +482,7 @@ export class App {
     this.show(s);
     back.focus({ preventScroll: true });
     // live preview on the attract-mode mallet
-    const preview = () => this.view.setColors(0, MALLET_COLORS[settings.color], MALLET_COLORS[settings.accent]);
+    const preview = () => this.view.setColors(0, this.colors()[0], MALLET_COLORS[settings.accent], !!SKINS[settings.skin] && progress.skins.includes(settings.skin));
     p.addEventListener('click', preview);
     preview();
   }

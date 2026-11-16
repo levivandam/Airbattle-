@@ -10,6 +10,7 @@ import {
   malletRadius,
   removeEffect,
 } from './effects';
+import { collideBumper, collideMover, collideSeg } from './arena';
 import { GameEvent, GameState, Mallet, PlayerId, Puck, T } from './state';
 
 const WALL_E = 0.9;
@@ -21,6 +22,13 @@ const clamp = (v: number, lo: number, hi: number) => (v < lo ? lo : v > hi ? hi 
 
 export function moveMallet(s: GameState, p: PlayerId, dt: number): void {
   const m = s.mallets[p];
+  const A = s.arena;
+  if (A && A.solo && p === 1) {
+    m.x = m.px = 0; // no opponent: park the mallet far away
+    m.y = m.py = 99;
+    m.vx = m.vy = 0;
+    return;
+  }
   m.px = m.x;
   m.py = m.y;
   const rTarget = malletRadius(s, p);
@@ -31,10 +39,15 @@ export function moveMallet(s: GameState, p: PlayerId, dt: number): void {
     m.vy = 0;
     return;
   }
-  const xLim = T.HW - m.r;
+  // where this mallet may go: own half of the table, or the level's zone
+  const Z = A && A.zone && p === 0 ? A.zone : null;
+  const x0 = (Z ? Z[0] : -T.HW) + m.r;
+  const x1 = (Z ? Z[1] : T.HW) - m.r;
+  const y0 = Z ? Z[2] + m.r : p === 0 ? -(T.HL - m.r) : m.r;
+  const y1 = Z ? Z[3] - m.r : p === 0 ? -m.r : T.HL - m.r;
   let tx = isReversed(s, p) ? -m.tx : m.tx;
-  tx = clamp(tx, -xLim, xLim);
-  const ty = p === 0 ? clamp(m.ty, -(T.HL - m.r), -m.r) : clamp(m.ty, m.r, T.HL - m.r);
+  tx = clamp(tx, x0, x1);
+  const ty = clamp(m.ty, y0, y1);
 
   const max = malletMax(s, p);
   let nvx: number;
@@ -59,8 +72,8 @@ export function moveMallet(s: GameState, p: PlayerId, dt: number): void {
   let nx = m.x + nvx * dt;
   let ny = m.y + nvy * dt;
   // stay on the table and on your own half
-  const cx = clamp(nx, -xLim, xLim);
-  const cy = p === 0 ? clamp(ny, -(T.HL - m.r), -m.r) : clamp(ny, m.r, T.HL - m.r);
+  const cx = clamp(nx, x0, x1);
+  const cy = clamp(ny, y0, y1);
   if (cx !== nx) nvx = 0;
   if (cy !== ny) nvy = 0;
   nx = cx;
@@ -161,6 +174,14 @@ export function stepPuck(s: GameState, p: Puck, dt: number, ev: GameEvent[]): -1
     for (let i = 0 as PlayerId; i < 2; i = (i + 1) as PlayerId) {
       const m = s.mallets[i];
       collideMallet(s, p, m, m.px + (m.x - m.px) * f, m.py + (m.y - m.py) * f, i, ev);
+    }
+    const A = s.arena;
+    if (A) {
+      const tm = s.time - dt + h * k;
+      for (const w of A.walls) collideSeg(p, w, ev);
+      for (const b of A.bumpers) collideBumper(p, b, ev);
+      for (const mv of A.movers) collideMover(p, mv, tm, ev);
+      if (A.custom) continue; // own shape: no standard walls or goals
     }
     // side walls
     const xl = T.HW - p.r;

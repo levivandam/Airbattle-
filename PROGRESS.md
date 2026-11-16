@@ -3,13 +3,19 @@
 > Update this file before every push. The next model only has the repo — write so they can continue instantly.
 
 ## Current status
-- **Phase:** 10 built and live, **waiting for Levi's playtest feedback before tuning further**. Next build phase: 11 (campaign).
-- **Last worked by:** Fable (2026-11-16, Phase 10)
+- **Phase:** 11 done (campaign engine + World 1 live). Next: 12 (Quick match via Firebase).
+- **Last worked by:** Fable (2026-11-16, Phases 10–11)
 - **Live URL:** https://levivandam.github.io/Airbattle-/ (live)
 
 ## Next step
-1. Phase 10 feedback applied (see Done). Still open: **WASD feels bad** — ask Levi what exactly (too slow? too twitchy? dash?). Tuning places: physics numbers in `src/core/physics.ts` (`MALLET_E`, `DRAG`, `HIT_SMOOTH`) and `T` in `src/core/state.ts` (`PUCK_MAX`, `PUCK_R`); bot numbers in `src/ai/botConfig.ts` (one row per level; `speed`/`strike`/`reaction` matter most).
-2. Then **Phase 11** (campaign engine + World 1), see SPEC-V2 §B. Start with segment walls + circular bumpers in physics, then the level data format in `src/campaign/`.
+**Phase 12** (Quick match): `src/net/matchmaking.ts` on Firebase Realtime Database + anonymous auth (config is in `src/net/firebaseConfig.ts`), `database.rules.json`, bot-while-waiting, then hand off to the existing room-code flow in `src/net/online.ts`. After that Phase 13 (Worlds 2–4).
+
+How the campaign is put together (for adding Worlds 2–4):
+- A level is data: `src/campaign/types.ts` (`LevelDef`), worlds in `src/campaign/levels/worldN.ts`, registered in `levels/index.ts` (remove the name from `COMING` when a world is added).
+- `runner.ts`: `buildArena(def)` → `Arena` in the game state; `LevelRun.tick` checks targets / gates / finish / fail / stars. `core/arena.ts` + `core/physics.ts` handle walls, bumpers and movers (spin / slide bars). `render/arena.ts` draws them. `campaign/ui.ts` has the map, level start and result screens; `progress.ts` stores stars + skins.
+- Level kinds that already work: `targets`, `score`, `course` (gates in order + finish zone; bigger arenas via `custom.bounds`, the camera fits the bounds), `bot`, `boss` (bot `params` overrides + permanent `effects`).
+- `tests/campaign.test.ts` probes every solo level for solvability — keep it passing for new levels (extend it with multi-shot search for long courses).
+- Not built yet: table themes as rewards, per-level star gates between worlds, bumpers/movers are implemented but unused in World 1.
 
 Firebase (needed for Phase 12): **config received and saved in `src/net/firebaseConfig.ts`** (project `airbattle-9491c`, Realtime Database in europe-west1 exists). Levi still had to enable Anonymous + Google sign-in and add the authorized domain (steps 3–4 below) — verify at the start of Phase 12 (an anonymous sign-in error `auth/operation-not-allowed` means it's not enabled). Original steps (Firebase's console menu has moved: Realtime Database is under 'Databases & Storage', Authentication under 'Security'):
 1. https://console.firebase.google.com → Add project "airbattle" → Google Analytics off → Create.
@@ -42,6 +48,9 @@ Firebase (needed for Phase 12): **config received and saved in `src/net/firebase
 - 2026-11-16 — Phase 10: mallet 1:1 under the pointer (no smoothing; `MALLET_MAX` 60 is only a safety cap), swept mallet–puck collision with dynamic sub-steps, hit strength from averaged mallet velocity, `PUCK_MAX` 6.5, puck radius 0.045, pick plane at grip height, local mallets drawn without interpolation (`view.direct`), cursor hidden, aim line (`render/fx.ts`, setting `aimLine`), WASD/arrows solo with auto-switch + dash (`SoloKeys` in `input/keyboard.ts`, driven from `Game.frame`), bot rewritten (`ai/bot.ts`: look → decide → hand motion; 8 moves with anti-repeat memory, patience, risk/press, mood, idle drift, mistakes, adapt) with levels Rookie/Easy/Normal/Hard/Pro/Adaptive (`ai/botConfig.ts`). Tests: 7 passing incl. fast-flick, 1-tick follow and bot-variety checks.
 
 - 2026-11-16 — Levi's Phase 10 feedback: mouse feels better but could be smoother; puck too fast; bots improved; WASD plays badly (not fixed yet). Applied: pointer movement spread evenly over the physics ticks of each frame (`HumanPointer` in `game.ts`), `pointerrawupdate` for lower mouse latency, `PUCK_MAX` 5.0, `MALLET_E` 0.62, `DRAG` 0.5.
+
+- 2026-11-16 — Levi: WASD too fast to aim / no tempo control → keyboard speed now ramps (tap = slow 1.1, hold 0.45 s = 3.0), dash unchanged. Not re-tested by Levi.
+- 2026-11-16 — Phase 11: campaign engine + World 1 'Training Hall' (5 levels + boss 'The Wall', reward: Gold mallet skin selectable in Settings). Decisions: boss opens at 8 of 15 stars; in custom arenas the mallet may move anywhere in the level's zone (it does not collide with walls); big courses are shown whole by fitting the camera to the level bounds instead of a follow-camera.
 
 ## In progress
 - (nothing)

@@ -25,6 +25,9 @@ export class View {
   private tmp = new THREE.Vector3();
   private goalW: [number, number] = [T.GOAL_HALF, T.GOAL_HALF];
   private camBase = new THREE.Vector3();
+  /** area the camera must show: minX, maxX, minY, maxY (table coordinates) */
+  bounds: [number, number, number, number] = [-T.HW, T.HW, -T.HL, T.HL];
+  private center = new THREE.Vector3();
   flip = false;
   tilt = 15; // degrees from straight down
   zoom = 1;
@@ -43,7 +46,7 @@ export class View {
     this.scene.fog = new THREE.Fog(0x0b0910, 5, 11);
 
     this.table = buildTable(this.renderer.capabilities.getMaxAnisotropy());
-    this.scene.add(this.table.group);
+    this.scene.add(this.table.group, this.table.floor); // floor stays when a campaign level hides the table
 
     this.scene.add(new THREE.HemisphereLight(0xfff1dd, 0x1a1626, 0.8));
     this.lamp = new THREE.SpotLight(0xffe2b8, 21, 9, 0.62, 0.55, 1.6);
@@ -75,8 +78,8 @@ export class View {
     this.resize();
   }
 
-  setColors(p: 0 | 1, color: number, accent: number): void {
-    setMalletColors(this.mallets[p], color, accent);
+  setColors(p: 0 | 1, color: number, accent: number, metal = false): void {
+    setMalletColors(this.mallets[p], color, accent, metal);
   }
 
   malletColors(): [number, number] {
@@ -84,9 +87,10 @@ export class View {
     return [c(this.mallets[0]), c(this.mallets[1])];
   }
 
-  setCamera(flip: boolean, tilt: number): void {
+  setCamera(flip: boolean, tilt: number, bounds: [number, number, number, number] = [-T.HW, T.HW, -T.HL, T.HL]): void {
     this.flip = flip;
     this.tilt = tilt;
+    this.bounds = bounds;
     this.resize();
   }
 
@@ -108,13 +112,14 @@ export class View {
     const a = (this.tilt * Math.PI) / 180;
     const dir = new THREE.Vector3(0, Math.cos(a), Math.sin(a) * (this.flip ? -1 : 1));
     const up = new THREE.Vector3(0, 0, this.flip ? 1 : -1);
-    const ex = T.HW + RAIL_W + 0.03;
-    const ez = T.HL + RAIL_W + 0.03;
+    const pad = RAIL_W + 0.03;
+    const [bx0, bx1, by0, by1] = this.bounds;
+    const c = this.center.set((bx0 + bx1) / 2, 0, -(by0 + by1) / 2);
     const corners = [
-      [-ex, ez],
-      [ex, ez],
-      [-ex, -ez],
-      [ex, -ez],
+      [bx0 - pad, -(by0 - pad)],
+      [bx1 + pad, -(by0 - pad)],
+      [bx0 - pad, -(by1 + pad)],
+      [bx1 + pad, -(by1 + pad)],
     ];
     const portrait = window.innerHeight > window.innerWidth;
     const mx = 0.96;
@@ -123,9 +128,9 @@ export class View {
     let hi = 14;
     for (let i = 0; i < 22; i++) {
       const d = (lo + hi) / 2;
-      this.camera.position.copy(dir).multiplyScalar(d);
+      this.camera.position.copy(dir).multiplyScalar(d).add(c);
       this.camera.up.copy(up);
-      this.camera.lookAt(0, 0, 0);
+      this.camera.lookAt(c);
       this.camera.updateMatrixWorld();
       let fits = true;
       for (const [x, z] of corners) {
@@ -135,8 +140,8 @@ export class View {
       if (fits) hi = d;
       else lo = d;
     }
-    this.camera.position.copy(dir).multiplyScalar(hi);
-    this.camera.lookAt(0, 0, 0);
+    this.camera.position.copy(dir).multiplyScalar(hi).add(c);
+    this.camera.lookAt(c);
     this.camBase.copy(this.camera.position);
   }
 
@@ -204,8 +209,8 @@ export class View {
   }
 
   render(): void {
-    this.camera.position.copy(this.camBase).multiplyScalar(1 / this.zoom).add(this.shake);
-    this.camera.lookAt(0, 0, 0);
+    this.camera.position.copy(this.camBase).sub(this.center).multiplyScalar(1 / this.zoom).add(this.center).add(this.shake);
+    this.camera.lookAt(this.center);
     this.renderer.render(this.scene, this.camera);
   }
 }

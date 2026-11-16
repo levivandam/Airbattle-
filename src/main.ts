@@ -2,10 +2,12 @@ import './ui/style.css';
 import { AudioEngine } from './audio/engine';
 import { Music } from './audio/music';
 import { Sfx } from './audio/sfx';
+import { Campaign } from './campaign/ui';
 import { intensity } from './core/match';
 import { Game } from './game';
 import { PointerInput } from './input/pointer';
 import { Online } from './net/online';
+import { ArenaView } from './render/arena';
 import { Fx } from './render/fx';
 import { PowerFx } from './render/powerfx';
 import { View } from './render/view';
@@ -14,6 +16,7 @@ import { Hud } from './ui/hud';
 
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 const view = new View(canvas);
+new ArenaView(view);
 new PowerFx(view);
 const input = new PointerInput(view);
 const game = new Game(view, input);
@@ -56,7 +59,12 @@ game.onEvent((e, s) => {
     case 'block': sfx.block(); break;
     case 'matchpoint': setTimeout(() => sfx.matchPoint(), 1150); break;
     case 'golden': sfx.matchPoint(); break;
+    case 'target': sfx.pickup('big'); break;
+    case 'gate': sfx.spawn(); break;
+    case 'win': sfx.win(); break;
+    case 'fail': sfx.lose(); break;
     case 'over':
+      if (game.config.kind === 'campaign') break;
       if (game.config.kind === 'local' || e.winner === game.local) sfx.win();
       else sfx.lose();
       break;
@@ -67,6 +75,8 @@ game.onFrame((s) => {
   const playing = scene === 'match' && game.config.kind !== 'attract' && s.phase !== 'over';
   music.setLevel(playing ? intensity(s) : 0);
 });
+
+new Campaign(app, game);
 
 // ---------- online ----------
 const online = new Online(app, game);

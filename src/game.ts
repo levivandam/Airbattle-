@@ -2,12 +2,12 @@
 import { Bot } from './ai/bot';
 import { BOT, Difficulty, adaptiveSkill, blendParams } from './ai/botConfig';
 import { step } from './core/sim';
-import { GameEvent, GameState, MatchMode, PlayerId, PowerUpType, T, createState } from './core/state';
+import { Arena, GameEvent, GameState, MatchMode, PlayerId, PowerUpType, T, createState } from './core/state';
 import { SoloKeys } from './input/keyboard';
 import { PointerInput } from './input/pointer';
 import { View } from './render/view';
 
-export type MatchKind = 'attract' | 'bot' | 'local' | 'host' | 'guest';
+export type MatchKind = 'attract' | 'bot' | 'local' | 'host' | 'guest' | 'campaign';
 
 export interface MatchConfig {
   kind: MatchKind;
@@ -15,6 +15,9 @@ export interface MatchConfig {
   mode: MatchMode;
   powerUps: boolean;
   enabledTypes: PowerUpType[];
+  /** campaign: level geometry, and whether there is a bot opponent */
+  arena?: Arena | null;
+  withBot?: boolean;
   /** optional overrides for the bot (campaign bosses) */
   botParams?: Partial<import('./ai/botConfig').BotParams>;
 }
@@ -86,7 +89,7 @@ export class Game {
 
   start(config: MatchConfig, extra: Controller[] = []): void {
     this.config = config;
-    this.state = createState({ mode: config.mode, powerUps: config.powerUps, enabledTypes: config.enabledTypes });
+    this.state = createState({ mode: config.mode, powerUps: config.powerUps, enabledTypes: config.enabledTypes, arena: config.arena });
     this.paused = false;
     this.timeScale = 1;
     this.acc = 0;
@@ -109,6 +112,15 @@ export class Game {
         if (config.botParams) Object.assign(params, config.botParams);
         this.bot = new Bot(1, params);
         this.controllers = [new HumanPointer(this.input, 0, this.ticksLeft), this.bot];
+        break;
+      }
+      case 'campaign': {
+        this.controllers = [new HumanPointer(this.input, 0, this.ticksLeft)];
+        if (config.withBot) {
+          const lvl = config.difficulty === 'adaptive' ? 'normal' : config.difficulty;
+          this.bot = new Bot(1, { ...BOT[lvl], ...(config.botParams ?? {}) });
+          this.controllers.push(this.bot);
+        }
         break;
       }
       case 'local':
@@ -146,7 +158,7 @@ export class Game {
     if (!this.state) return;
     if (!this.paused) {
       const k = this.config.kind;
-      if (k === 'bot' || k === 'host' || k === 'guest') this.solo.update(this.state, this.local, this.input, real);
+      if (k === 'bot' || k === 'host' || k === 'guest' || k === 'campaign') this.solo.update(this.state, this.local, this.input, real);
       if (this.external) {
         this.external(real);
       } else {

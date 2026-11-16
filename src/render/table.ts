@@ -11,6 +11,7 @@ export interface TableParts {
   /** Slide the end-rail pieces so the goal mouth has the given half-width. side 0 = bottom (z > 0). */
   setGoalHalf(side: 0 | 1, half: number): void;
   goalLights: [THREE.Mesh, THREE.Mesh];
+  floor: THREE.Mesh;
 }
 
 export function buildTable(aniso: number): TableParts {
@@ -103,7 +104,5 @@ export function buildTable(aniso: number): TableParts {
   floor.rotation.x = -Math.PI / 2;
   floor.position.y = -0.85;
   floor.receiveShadow = true;
-  group.add(floor);
-
-  return { group, setGoalHalf, goalLights };
+  return { group, setGoalHalf, goalLights, floor };
 }

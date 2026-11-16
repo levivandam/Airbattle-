@@ -104,7 +104,7 @@ export class Fx {
     const attract = this.game.config.kind === 'attract';
     switch (e.t) {
       case 'hit':
-        if (e.speed > 2.5 && settings.aimLine && this.view.direct[e.player]) this.showAim(s, e.x, e.y);
+        if (e.speed > 2.5 && settings.aimLine && this.view.direct[e.player] && !(s.arena && s.arena.custom)) this.showAim(s, e.x, e.y);
         if (e.speed > 2.4) {
           this.burst(e.x, e.y, 0xfff2c4, 5, 0.6, 0.3);
           if (settings.shake && !attract) this.shakeAmp = Math.min(0.03, this.shakeAmp + (e.speed - 2.4) * 0.008);
@@ -122,6 +122,13 @@ export class Fx {
       }
       case 'pickup':
         this.burst(e.x, e.y, DEFS[e.type].color, 22, 0.9, 1);
+        break;
+      case 'target':
+        this.burst(e.x, e.y, 0xd3352b, 20, 1, 1);
+        this.burst(e.x, e.y, 0xf2b632, 12, 0.8, 1.4);
+        break;
+      case 'gate':
+        this.burst(e.x, e.y, 0xf2b632, 12, 0.7, 1);
         break;
       case 'block':
         this.burst(e.x, e.y, 0x45d8ff, 18, 1, 0.6);

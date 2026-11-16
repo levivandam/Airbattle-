@@ -16,6 +16,7 @@ export interface Settings {
   p2keys: 'wasd' | 'arrows';
   color: number; // index into MALLET_COLORS
   accent: number;
+  skin: string; // '' or an unlocked campaign skin (e.g. 'gold')
 }
 
 export const MALLET_COLORS = [0xd3352b, 0x2a5bc7, 0x2f9d5a, 0xf08a24, 0x8b3fb0, 0xe85d9a, 0x1fa3a3, 0xf2c230, 0x26232b, 0xf4f0e6];
@@ -36,6 +37,11 @@ const defaults: Settings = {
   p2keys: 'wasd',
   color: 0,
   accent: 9,
+  skin: '',
+};
+
+export const SKINS: Record<string, { color: number; label: string }> = {
+  gold: { color: 0xd9a520, label: 'Gold' },
 };
 
 export function loadJSON<T>(key: string, fallback: T): T {

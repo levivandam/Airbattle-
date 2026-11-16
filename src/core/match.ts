@@ -74,7 +74,7 @@ export function tickClock(s: GameState, dt: number, ev: GameEvent[]): void {
 
 /** If the only puck lies nearly still for 5 s, re-serve it on that half. */
 export function tickStuck(s: GameState, dt: number, ev: GameEvent[]): void {
-  if (s.pucks.length !== 1) {
+  if (s.pucks.length !== 1 || (s.arena && s.arena.solo)) {
     s.stuck = 0;
     return;
   }

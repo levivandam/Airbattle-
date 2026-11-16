@@ -9,6 +9,7 @@ export interface HudOptions {
   colors: [string, string];
   local: PlayerId;
   split: boolean; // two players on one touch screen: mirror banners for the top player
+  info?: boolean; // campaign practice levels: show an info line instead of the scoreboard
 }
 
 interface Board {
@@ -35,6 +36,8 @@ export class Hud {
   readonly cornerRight = el('div', 'corner right');
   readonly cornerLeft = el('div', 'corner left');
   readonly fx = el('div', 'fx');
+  private infoEl = el('div', 'board info');
+  private infoText = '';
   private opts: HudOptions = { names: ['YOU', 'BOT'], colors: ['#d3352b', '#2a5bc7'], local: 0, split: false };
   private lastClock = '';
   private fxRows: [HTMLElement, HTMLElement] = [el('div', 'fxrow mine'), el('div', 'fxrow theirs')];
@@ -46,7 +49,7 @@ export class Hud {
     const b1 = el('div', 'banner');
     const b2 = el('div', 'banner rot');
     this.banners = [b1, b2];
-    this.node.append(b1, b2, this.fx, this.cornerLeft, this.cornerRight);
+    this.node.append(this.infoEl, b1, b2, this.fx, this.cornerLeft, this.cornerRight);
     this.node.style.display = 'none';
     root().append(this.node);
   }
@@ -55,7 +58,8 @@ export class Hud {
     this.opts = o;
     this.node.style.display = '';
     for (const b of this.boards) b.node.remove();
-    this.boards = o.split ? [makeBoard(0, 'near'), makeBoard(1, 'far')] : [makeBoard(o.local, '')];
+    this.boards = o.info ? [] : o.split ? [makeBoard(0, 'near'), makeBoard(1, 'far')] : [makeBoard(o.local, '')];
+    this.infoEl.style.display = o.info ? '' : 'none';
     this.lastClock = '';
     for (const b of this.boards) {
       // o.names / o.colors are given as [local player, opponent]
@@ -78,6 +82,13 @@ export class Hud {
     this.banners[1].style.top = '28%';
     this.banners[1].style.display = o.split ? '' : 'none';
     for (const b of this.banners) b.classList.remove('show');
+  }
+
+  setInfo(text: string): void {
+    if (text !== this.infoText) {
+      this.infoText = text;
+      this.infoEl.textContent = text;
+    }
   }
 
   hide(): void {
@@ -161,6 +172,12 @@ export class Hud {
         break;
       case 'pickup':
         this.banner(DEFS[e.type].name.toUpperCase() + '!', colorOf(e.player), true);
+        break;
+      case 'win':
+        this.banner('NICE!', 'amber');
+        break;
+      case 'fail':
+        this.banner('MISSED IT', 'blue', true);
         break;
       case 'golden':
         this.banner('GOLDEN GOAL', 'amber', true);

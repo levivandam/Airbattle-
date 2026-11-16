@@ -92,11 +92,11 @@ Spec: `SPEC.md`. Working rules: `CLAUDE.md`.
 **Done when:** Levi says hitting and aiming feel good and Normal is a fair fight.
 
 ## Phase 11 — Campaign engine + World 1
-- [ ] Physics: segment walls, circular bumpers, kinematic moving/rotating obstacles (standard table unchanged)
-- [ ] Level data format + loader; arena of any shape; camera fit/follow for big tracks
-- [ ] Targets, gates, finish zones, shot/time counters, win/lose + star conditions, retry
-- [ ] Campaign menu button, world map with nodes + stars, unlock rules, localStorage progress
-- [ ] World 1 (5 levels + boss "The Wall"), each verified solvable; first mallet-skin unlock
+- [x] Physics: segment walls, circular bumpers, kinematic moving/rotating obstacles (standard table unchanged)
+- [x] Level data format + loader; arena of any shape; camera fit/follow for big tracks
+- [x] Targets, gates, finish zones, shot/time counters, win/lose + star conditions, retry
+- [x] Campaign menu button, world map with nodes + stars, unlock rules, localStorage progress
+- [x] World 1 (5 levels + boss "The Wall"), each verified solvable; first mallet-skin unlock
 **Done when:** World 1 is playable start to finish with stars and the boss reward.
 
 ## Phase 12 — Quick match (matchmaking) — NEEDS LEVI'S FIREBASE CONFIG

@@ -37,8 +37,11 @@ export function buildMallet(color: number, accent: number): THREE.Group {
   return g;
 }
 
-export function setMalletColors(g: THREE.Group, color: number, accent: number): void {
-  ((g.getObjectByName('body') as THREE.Mesh).material as THREE.MeshStandardMaterial).color.setHex(color);
+export function setMalletColors(g: THREE.Group, color: number, accent: number, metal = false): void {
+  const body = (g.getObjectByName('body') as THREE.Mesh).material as THREE.MeshStandardMaterial;
+  body.color.setHex(color);
+  body.metalness = metal ? 0.85 : 0.05;
+  body.roughness = metal ? 0.3 : 0.28;
   ((g.getObjectByName('ring') as THREE.Mesh).material as THREE.MeshStandardMaterial).color.setHex(accent);
 }
 

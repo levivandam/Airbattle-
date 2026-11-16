@@ -74,6 +74,56 @@ export interface Token {
   age: number;
 }
 
+export interface Seg {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
+
+/** A moving wall piece: a bar spinning around (x, y) or sliding between (x, y) and (bx, by). */
+export interface Mover {
+  type: 'spin' | 'slide';
+  x: number;
+  y: number;
+  len: number;
+  angle: number;
+  spin: number; // rad/s (spin only)
+  bx: number;
+  by: number;
+  period: number; // seconds for there-and-back (slide only)
+  phase: number;
+}
+
+/** Things the puck must reach in campaign levels. */
+export interface Mark {
+  kind: 'target' | 'gate' | 'finish';
+  x: number;
+  y: number;
+  r: number;
+  x2: number; // gate: other end
+  y2: number;
+  done: boolean;
+  ox: number; // moving targets: origin + swing
+  oy: number;
+  dx: number;
+  dy: number;
+  period: number;
+}
+
+/** Extra geometry for campaign levels. Standard matches have no arena. */
+export interface Arena {
+  id: string;
+  custom: boolean; // true = own shape (no standard walls / goals)
+  solo: boolean; // no opponent mallet
+  bounds: [number, number, number, number]; // minX, maxX, minY, maxY
+  zone: [number, number, number, number] | null; // where player 0 may move (null = own half)
+  walls: Seg[];
+  bumpers: Array<{ x: number; y: number; r: number }>;
+  movers: Mover[];
+  marks: Mark[];
+}
+
 export type MatchMode = { kind: 'goals'; target: number } | { kind: 'time'; seconds: number };
 
 export type Phase = 'countdown' | 'play' | 'goal' | 'over';
@@ -101,6 +151,7 @@ export interface GameState {
   seed: number;
   nextId: number;
   stats: { maxSpeed: [number, number]; pickups: [number, number] };
+  arena: Arena | null;
 }
 
 export type GameEvent =
@@ -116,7 +167,11 @@ export type GameEvent =
   | { t: 'spawn'; type: PowerUpType; x: number; y: number }
   | { t: 'pickup'; type: PowerUpType; player: PlayerId; x: number; y: number }
   | { t: 'expire'; type: PowerUpType; player: PlayerId }
-  | { t: 'block'; x: number; y: number };
+  | { t: 'block'; x: number; y: number }
+  | { t: 'target'; x: number; y: number }
+  | { t: 'gate'; x: number; y: number }
+  | { t: 'win' }
+  | { t: 'fail' };
 
 export const other = (p: PlayerId): PlayerId => (p === 0 ? 1 : 0);
 
@@ -134,6 +189,7 @@ export interface MatchOptions {
   powerUps: boolean;
   enabledTypes: PowerUpType[];
   seed?: number;
+  arena?: Arena | null;
 }
 
 export function createState(o: MatchOptions): GameState {
@@ -162,6 +218,7 @@ export function createState(o: MatchOptions): GameState {
     seed,
     nextId: 2,
     stats: { maxSpeed: [0, 0], pickups: [0, 0] },
+    arena: o.arena ?? null,
   };
 }
 

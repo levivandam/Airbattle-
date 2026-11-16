@@ -84,7 +84,10 @@ export class SoloKeys {
   /** 0 = dash ready … 1 = just used */
   cooldown = 0;
   private dashHeld = false;
-  static readonly SPEED = 3.5;
+  private held = 0; // how long a direction has been held: tap = slow and precise, hold = faster
+  static readonly SPEED = 3.0;
+  static readonly SLOW = 1.1;
+  static readonly RAMP = 0.45; // seconds from slow to full speed
   static readonly DASH_MUL = 2.2;
   static readonly DASH_TIME = 0.15;
   static readonly DASH_COOLDOWN = 0.6;
@@ -109,7 +112,9 @@ export class SoloKeys {
     }
     this.dashHeld = wantDash;
     this.dash = Math.max(0, this.dash - dt);
-    const max = SoloKeys.SPEED * (this.dash > 0 ? SoloKeys.DASH_MUL : 1);
+    this.held = ix || iy ? this.held + dt : 0;
+    const ramp = SoloKeys.SLOW + (SoloKeys.SPEED - SoloKeys.SLOW) * Math.min(1, this.held / SoloKeys.RAMP);
+    const max = this.dash > 0 ? SoloKeys.SPEED * SoloKeys.DASH_MUL : ramp;
     const len = Math.hypot(ix, iy) || 1;
     // near-instant start and stop
     const k = Math.min(1, dt * (ix || iy ? 40 : 28));
@@ -117,11 +122,13 @@ export class SoloKeys {
     this.vy += ((iy / len) * max - this.vy) * k;
     this.x += this.vx * dt;
     this.y += this.vy * dt;
-    const xl = T.HW - m.r;
-    const lo = me === 0 ? -(T.HL - m.r) : m.r;
-    const hi = me === 0 ? -m.r : T.HL - m.r;
-    if (this.x > xl) { this.x = xl; this.vx = 0; }
-    if (this.x < -xl) { this.x = -xl; this.vx = 0; }
+    const Z = s.arena && s.arena.zone && me === 0 ? s.arena.zone : null;
+    const xlo = (Z ? Z[0] : -T.HW) + m.r;
+    const xhi = (Z ? Z[1] : T.HW) - m.r;
+    const lo = Z ? Z[2] + m.r : me === 0 ? -(T.HL - m.r) : m.r;
+    const hi = Z ? Z[3] - m.r : me === 0 ? -m.r : T.HL - m.r;
+    if (this.x > xhi) { this.x = xhi; this.vx = 0; }
+    if (this.x < xlo) { this.x = xlo; this.vx = 0; }
     if (this.y > hi) { this.y = hi; this.vy = 0; }
     if (this.y < lo) { this.y = lo; this.vy = 0; }
     input.targets[me] = { x: this.x, y: this.y };
