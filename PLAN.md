@@ -111,11 +111,11 @@ Spec: `SPEC.md`. Working rules: `CLAUDE.md`.
 If the Firebase config is not there yet when you reach this phase: ask Levi (steps are in PROGRESS.md) and continue with Phase 13 meanwhile.
 
 ## Phase 13 — Campaign Worlds 2–4 + rewards
-- [ ] World 2 Obstacle Alley (+ boss "Bumper King", neon table unlock)
-- [ ] World 3 Puck Course: bigger tracks (+ boss "Speed Demon", ice table unlock)
-- [ ] World 4 Bot Gauntlet (+ boss "The Champion", champion table unlock)
-- [ ] Skins + table themes selectable in Settings; bonus skin per fully-starred world
-- [ ] Table theme choice used in vs bot / local / online (host decides)
+- [x] World 2 Obstacle Alley (+ boss "Bumper King", neon table unlock)
+- [x] World 3 Puck Course: bigger tracks (+ boss "Speed Demon", ice table unlock)
+- [x] World 4 Bot Gauntlet (+ boss "The Champion", champion table unlock)
+- [x] Skins + table themes selectable in Settings; bonus skin per fully-starred world
+- [x] Table theme choice used in every mode (each player sees their own theme; 'host decides' online was skipped)
 
 ## Phase 14 — Accounts & rating
 - [ ] "Sign in with Google" (Settings + Quick match screen); nickname and campaign progress synced to Firebase

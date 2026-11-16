@@ -17,6 +17,7 @@ export interface Settings {
   color: number; // index into MALLET_COLORS
   accent: number;
   nick: string; // nickname shown to quick-match opponents
+  table: string; // table theme: 'classic' or an unlocked one
   skin: string; // '' or an unlocked campaign skin (e.g. 'gold')
 }
 
@@ -39,11 +40,15 @@ const defaults: Settings = {
   color: 0,
   accent: 9,
   nick: '',
+  table: 'classic',
   skin: '',
 };
 
 export const SKINS: Record<string, { color: number; label: string }> = {
   gold: { color: 0xd9a520, label: 'Gold' },
+  neon: { color: 0x1fd6e0, label: 'Neon' },
+  ice: { color: 0xbfe8ff, label: 'Ice' },
+  champion: { color: 0x34303f, label: 'Black chrome' },
 };
 
 export function loadJSON<T>(key: string, fallback: T): T {

@@ -15,20 +15,38 @@ function finish(c: HTMLCanvasElement, aniso: number): THREE.CanvasTexture {
   return t;
 }
 
+export interface Theme {
+  bg: string;
+  dots: string;
+  lineA: string; // center line, circle, face-off dots
+  lineB: string; // zone lines, creases
+  crease: string;
+  rail: number; // tint multiplied with the wood texture
+  puck: number;
+  puckRing: number;
+}
+export const THEMES: Record<string, Theme> = {
+  classic: { bg: '#f4f0e6', dots: 'rgba(40,40,60,0.13)', lineA: '#d3352b', lineB: '#2a5bc7', crease: 'rgba(42,91,199,0.14)', rail: 0xffffff, puck: 0x18181c, puckRing: 0x55555f },
+  neon: { bg: '#15121d', dots: 'rgba(255,255,255,0.07)', lineA: '#ff3df0', lineB: '#2de2ff', crease: 'rgba(45,226,255,0.12)', rail: 0x5a4a78, puck: 0xf4f0e6, puckRing: 0xff3df0 },
+  ice: { bg: '#e4f2fb', dots: 'rgba(40,90,140,0.14)', lineA: '#2a7fd0', lineB: '#69b7e6', crease: 'rgba(105,183,230,0.2)', rail: 0xcfe6f5, puck: 0x14202c, puckRing: 0x4a6a86 },
+  gold: { bg: '#1c1810', dots: 'rgba(255,220,140,0.08)', lineA: '#d9a520', lineB: '#f4d98a', crease: 'rgba(217,165,32,0.14)', rail: 0xc79a3a, puck: 0xf4f0e6, puckRing: 0xd9a520 },
+};
+export const THEME_LABELS: Record<string, string> = { classic: 'Classic', neon: 'Neon', ice: 'Ice rink', gold: 'Champion' };
+
 /** Playing surface: 1 x 2 units, canvas top = far end (player 1). */
-export function surfaceTexture(aniso: number): THREE.CanvasTexture {
+export function surfaceTexture(aniso: number, th: Theme = THEMES.classic): THREE.CanvasTexture {
   const W = 1024;
   const H = 2048;
   const [c, g] = canvas(W, H);
   const u = W; // pixels per table unit
-  g.fillStyle = '#f4f0e6';
+  g.fillStyle = th.bg;
   g.fillRect(0, 0, W, H);
   // air holes
-  g.fillStyle = 'rgba(40,40,60,0.13)';
+  g.fillStyle = th.dots;
   for (let y = 24; y < H; y += 40) for (let x = 24; x < W; x += 40) g.fillRect(x - 1.5, y - 1.5, 3, 3);
 
-  const RED = '#d3352b';
-  const BLUE = '#2a5bc7';
+  const RED = th.lineA;
+  const BLUE = th.lineB;
   const line = (y: number, color: string, w: number) => {
     g.fillStyle = color;
     g.fillRect(0, H / 2 - y * u - w / 2, W, w);
@@ -42,7 +60,7 @@ export function surfaceTexture(aniso: number): THREE.CanvasTexture {
   g.beginPath();
   g.arc(W / 2, H / 2, 0.19 * u, 0, Math.PI * 2);
   g.stroke();
-  g.fillStyle = '#f4f0e6';
+  g.fillStyle = th.bg;
   g.beginPath();
   g.arc(W / 2, H / 2, 0.035 * u, 0, Math.PI * 2);
   g.fill();
@@ -54,7 +72,7 @@ export function surfaceTexture(aniso: number): THREE.CanvasTexture {
   for (const end of [0, H]) {
     g.beginPath();
     g.arc(W / 2, end, 0.24 * u, 0, Math.PI * 2);
-    g.fillStyle = 'rgba(42,91,199,0.14)';
+    g.fillStyle = th.crease;
     g.fill();
     g.strokeStyle = BLUE;
     g.lineWidth = 8;

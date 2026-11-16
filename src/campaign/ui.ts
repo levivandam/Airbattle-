@@ -6,7 +6,7 @@ import { App } from '../ui/app';
 import { button, el } from '../ui/dom';
 import { toast } from '../ui/hud';
 import { COMING, WORLDS } from './levels';
-import { isUnlocked, saveResult, starsOf, worldStars } from './progress';
+import { isUnlocked, saveResult, starsOf, worldOpen, worldStars } from './progress';
 import { LevelRun, buildArena, setupState } from './runner';
 import { LevelResult, WorldDef, starText } from './types';
 
@@ -44,11 +44,12 @@ export class Campaign {
       const row = el('div', 'nodes');
       w.levels.forEach((l, i) => {
         const open = isUnlocked(w, i);
+        const wOpen = worldOpen(w);
         const boss = i === w.levels.length - 1;
         const b = el('button', 'node' + (boss ? ' boss' : '') + (open ? '' : ' locked'), '', { type: 'button', 'aria-label': l.name + (open ? '' : ' (locked)') });
         b.append(el('span', 'num', boss ? '♛' : String(i + 1)), el('span', 'st', open ? stars(starsOf(l.id)) : '🔒'));
         if (open) b.addEventListener('click', () => this.play(w, i));
-        else b.addEventListener('click', () => toast(boss ? `Earn ${w.bossStars} stars in this world to face the boss` : 'Finish the previous level first'));
+        else b.addEventListener('click', () => toast(!wOpen ? `Earn ${w.needStars} stars in the previous world to open this one` : boss ? `Earn ${w.bossStars} stars in this world to face the boss` : 'Finish the previous level first'));
         row.append(b);
       });
       p.append(head, row, el('p', 'hint left', `${w.blurb} Beat the boss to unlock: ${w.reward.label}.`));
@@ -75,7 +76,7 @@ export class Campaign {
     this.game.start({
       kind: 'campaign',
       difficulty: def.bot?.level ?? 'easy',
-      mode: { kind: 'goals', target: def.goalsToWin ?? 99 },
+      mode: def.seconds ? { kind: 'time', seconds: def.seconds } : { kind: 'goals', target: def.goalsToWin ?? 99 },
       powerUps: !!def.powerUps,
       enabledTypes: ALL_TYPES,
       arena,

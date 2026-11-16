@@ -3,20 +3,21 @@
 > Update this file before every push. The next model only has the repo — write so they can continue instantly.
 
 ## Current status
-- **Phase:** 12 built (Quick match), needs Levi to paste the database rules and test. Next build phase: 13 (campaign Worlds 2–4).
+- **Phase:** 10–13 built and live. Waiting on Levi: Quick match setup/test (Phase 12) and playtest of the campaign. Remaining build phase: 14 (Google sign-in + rating).
 - **Last worked by:** Fable (2026-11-16, Phases 10–11)
 - **Live URL:** https://levivandam.github.io/Airbattle-/ (live)
 
 ## Next step
 1. **Quick match needs a real-world test.** The Firebase code path (`FirebaseLobby` in `src/net/matchmaking.ts`) has never run against the real project — the sandbox blocks Firebase. Levi must (a) enable Anonymous sign-in, (b) paste `database.rules.json` into Realtime Database → Rules → Publish, then try Quick match in two browsers. Errors show as a toast: 'anonymous sign-in is disabled' / 'database rules are missing' / 'could not reach'. Fix whatever he reports first.
-2. Then **Phase 13**: Worlds 2–4 + table themes, see below.
+2. **Campaign balance is untested by a human.** All 24 levels pass the automatic solvability check (`npm test`), but star thresholds, time limits and boss difficulty are guesses. Tune from Levi's feedback in `src/campaign/levels/world*.ts`.
+3. Then **Phase 14**: Google sign-in + Elo rating (SPEC-V2 §C). Needs Google sign-in enabled and `levivandam.github.io` as authorized domain in Firebase, plus new database rules for `/users` and `/results`.
 
 How the campaign is put together (for adding Worlds 2–4):
 - A level is data: `src/campaign/types.ts` (`LevelDef`), worlds in `src/campaign/levels/worldN.ts`, registered in `levels/index.ts` (remove the name from `COMING` when a world is added).
 - `runner.ts`: `buildArena(def)` → `Arena` in the game state; `LevelRun.tick` checks targets / gates / finish / fail / stars. `core/arena.ts` + `core/physics.ts` handle walls, bumpers and movers (spin / slide bars). `render/arena.ts` draws them. `campaign/ui.ts` has the map, level start and result screens; `progress.ts` stores stars + skins.
 - Level kinds that already work: `targets`, `score`, `course` (gates in order + finish zone; bigger arenas via `custom.bounds`, the camera fits the bounds), `bot`, `boss` (bot `params` overrides + permanent `effects`).
 - `tests/campaign.test.ts` probes every solo level for solvability — keep it passing for new levels (extend it with multi-shot search for long courses).
-- Not built yet: table themes as rewards, per-level star gates between worlds, bumpers/movers are implemented but unused in World 1.
+- Worlds open at 9 stars in the previous world; bosses at 8 stars in their own world. Rewards: skins (`SKINS` in `storage/settings.ts`) and table themes (`THEMES` in `render/textures.ts`, `view.setTheme`).
 
 Firebase (needed for Phase 12): **config received and saved in `src/net/firebaseConfig.ts`** (project `airbattle-9491c`, Realtime Database in europe-west1 exists). Levi still had to enable Anonymous + Google sign-in and add the authorized domain (steps 3–4 below) — verify at the start of Phase 12 (an anonymous sign-in error `auth/operation-not-allowed` means it's not enabled). Original steps (Firebase's console menu has moved: Realtime Database is under 'Databases & Storage', Authentication under 'Security'):
 1. https://console.firebase.google.com → Add project "airbattle" → Google Analytics off → Create.
@@ -54,6 +55,8 @@ Firebase (needed for Phase 12): **config received and saved in `src/net/firebase
 - 2026-11-16 — Phase 11: campaign engine + World 1 'Training Hall' (5 levels + boss 'The Wall', reward: Gold mallet skin selectable in Settings). Decisions: boss opens at 8 of 15 stars; in custom arenas the mallet may move anywhere in the level's zone (it does not collide with walls); big courses are shown whole by fitting the camera to the level bounds instead of a follow-camera.
 
 - 2026-11-16 — Phase 12: Quick match. `src/net/matchmaking.ts` (Firebase RTDB queue `/queue/{uid}` with onDisconnect, per-user inbox `/matches/{uid}`, lowest uid in the queue claims the oldest other entry in a transaction; `?net=local` mock lobby), `src/net/quick.ts` (nickname screen, bot match while waiting, 'Opponent found' offer with 10 s accept, requeue on skip/no-show), `Online.hostQuick/joinQuick` (auto-start, join retries), nicknames in the HUD, `database.rules.json`. Firebase SDK is lazy-loaded. Tested with two tabs via `?net=local` only.
+
+- 2026-11-16 — Phase 13: Worlds 2 (Obstacle Alley), 3 (Puck Course) and 4 (Bot Gauntlet), 18 levels incl. bosses; skins neon / ice / black chrome; table themes neon / ice / champion (Settings → Table, after beating the world's boss). Decisions: boss 'Speed Demon' is a 30-second time trial on a course with moving parts instead of a race against a bot puck; online each player sees their own table theme.
 
 ## In progress
 - (nothing)

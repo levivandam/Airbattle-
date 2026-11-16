@@ -1,13 +1,15 @@
 // Campaign progress (stars, unlocked skins) saved in the browser.
 import { loadJSON, saveJSON } from '../storage/settings';
+import { WORLDS } from './levels';
 import { WorldDef } from './types';
 
 interface Progress {
   stars: Record<string, number>;
   skins: string[];
+  tables: string[];
 }
 const KEY = 'airbattle.campaign.v1';
-export const progress: Progress = loadJSON<Progress>(KEY, { stars: {}, skins: [] });
+export const progress: Progress = loadJSON<Progress>(KEY, { stars: {}, skins: [], tables: [] });
 
 export const starsOf = (id: string) => progress.stars[id] ?? 0;
 
@@ -16,7 +18,13 @@ export function worldStars(w: WorldDef, includeBoss = true): number {
   return list.reduce((n, l) => n + starsOf(l.id), 0);
 }
 
+export function worldOpen(w: WorldDef): boolean {
+  const prev = WORLDS[WORLDS.indexOf(w) - 1];
+  return !prev || worldStars(prev) >= w.needStars;
+}
+
 export function isUnlocked(w: WorldDef, index: number): boolean {
+  if (!worldOpen(w)) return false;
   if (index === 0) return true;
   if (starsOf(w.levels[index - 1].id) < 1) return false;
   const boss = index === w.levels.length - 1;
@@ -31,6 +39,7 @@ export function saveResult(w: WorldDef, index: number, stars: number): string | 
   if (index === w.levels.length - 1 && stars > 0 && !progress.skins.includes(w.reward.skin)) {
     progress.skins.push(w.reward.skin);
     unlocked = w.reward.label;
+    if (w.reward.table && !progress.tables.includes(w.reward.table)) progress.tables.push(w.reward.table);
   }
   saveJSON(KEY, progress);
   return unlocked;

@@ -5,6 +5,7 @@ import { ALL_TYPES } from '../core/powerups';
 import { Controller, Game, MatchConfig, MatchKind } from '../game';
 import { KeyboardController } from '../input/keyboard';
 import { PointerInput } from '../input/pointer';
+import { THEME_LABELS } from '../render/textures';
 import { View } from '../render/view';
 import { progress } from '../campaign/progress';
 import { MALLET_COLORS, SKINS, Settings, hex, matchMode, onSettings, settings, updateSettings } from '../storage/settings';
@@ -77,6 +78,8 @@ export class App {
       this.watchFps(dt);
     });
     onSettings(() => this.applyGraphics());
+    onSettings(() => this.view.setTheme(progress.tables.includes(settings.table) ? settings.table : 'classic'));
+    this.view.setTheme(progress.tables.includes(settings.table) ? settings.table : 'classic');
     this.applyGraphics();
   }
 
@@ -477,6 +480,10 @@ export class App {
       p.append(el('h3', '', 'Campaign skins'), row);
     }
     p.append(el('h3', '', 'Ring colour'), sw('accent', 'Ring colour'));
+    if (progress.tables.length) {
+      const opts: Array<[string, string]> = [['classic', 'Classic'], ...progress.tables.map((k): [string, string] => [k, THEME_LABELS[k] ?? k])];
+      p.append(el('h3', '', 'Table'), cycle('Table theme', 'table', opts));
+    }
     const back = button('Back', 'primary', () => this.menu());
     back.style.cssText = 'width:100%;margin-top:16px';
     p.append(back);

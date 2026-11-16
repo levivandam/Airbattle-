@@ -10,6 +10,7 @@ export const WORLD1: WorldDef = {
   name: 'Training Hall',
   blurb: 'Learn to aim.',
   bossStars: 8,
+  needStars: 0,
   reward: { skin: 'gold', label: 'Gold mallet' },
   levels: [
     {

@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import { WALL_W, moverPose } from '../core/arena';
 import { Arena, GameState, Mark } from '../core/state';
-import { woodTexture } from './textures';
+import { THEMES, woodTexture } from './textures';
 import { View } from './view';
 
 const H = 0.05;
@@ -36,7 +36,7 @@ export class ArenaView {
       const [x0, x1, y0, y1] = A.bounds;
       const floor = new THREE.Mesh(
         new THREE.PlaneGeometry(x1 - x0 + 0.06, y1 - y0 + 0.06),
-        new THREE.MeshStandardMaterial({ color: 0xf4f0e6, roughness: 0.35 }),
+        new THREE.MeshStandardMaterial({ color: new THREE.Color(THEMES[this.view.theme].bg), roughness: 0.35 }),
       );
       floor.rotation.x = -Math.PI / 2;
       floor.position.set((x0 + x1) / 2, -0.001, -(y0 + y1) / 2);
@@ -58,7 +58,7 @@ export class ArenaView {
     }
     for (const bp of A.bumpers) {
       const g = new THREE.Group();
-      const body = new THREE.Mesh(new THREE.CylinderGeometry(bp.r, bp.r, H, 28), new THREE.MeshStandardMaterial({ color: 0xd3352b, roughness: 0.3 }));
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(bp.r, bp.r, H, 28), new THREE.MeshStandardMaterial({ color: 0x2a5bc7, roughness: 0.3 }));
       body.position.y = H / 2;
       body.castShadow = true;
       const cap = new THREE.Mesh(new THREE.CylinderGeometry(bp.r * 0.6, bp.r * 0.6, 0.008, 24), new THREE.MeshStandardMaterial({ color: 0xf4f0e6, roughness: 0.3 }));

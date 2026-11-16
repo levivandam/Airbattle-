@@ -69,11 +69,14 @@ export function buildPuck(): THREE.Group {
   return g;
 }
 
+export const puckTheme = { body: 0x18181c, ring: 0x55555f };
+
 export function setPuckLook(g: THREE.Group, opacity: number, hot: boolean): void {
   const body = (g.getObjectByName('body') as THREE.Mesh).material as THREE.MeshStandardMaterial;
   const top = (g.getObjectByName('top') as THREE.Mesh).material as THREE.MeshBasicMaterial;
   body.opacity = opacity;
   top.opacity = opacity;
-  top.color.setHex(hot ? 0xff8a2a : 0x55555f);
+  top.color.setHex(hot ? 0xff8a2a : puckTheme.ring);
+  body.color.setHex(puckTheme.body);
   (g.getObjectByName('body') as THREE.Mesh).castShadow = opacity > 0.5;
 }

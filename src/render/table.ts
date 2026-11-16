@@ -12,6 +12,8 @@ export interface TableParts {
   setGoalHalf(side: 0 | 1, half: number): void;
   goalLights: [THREE.Mesh, THREE.Mesh];
   floor: THREE.Mesh;
+  surface: THREE.Mesh;
+  wood: THREE.MeshStandardMaterial;
 }
 
 export function buildTable(aniso: number): TableParts {
@@ -104,5 +106,5 @@ export function buildTable(aniso: number): TableParts {
   floor.rotation.x = -Math.PI / 2;
   floor.position.y = -0.85;
   floor.receiveShadow = true;
-  return { group, setGoalHalf, goalLights, floor };
+  return { group, setGoalHalf, goalLights, floor, surface, wood };
 }

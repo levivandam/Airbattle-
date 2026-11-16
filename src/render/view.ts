@@ -2,7 +2,8 @@
 import * as THREE from 'three';
 import { goalHalf } from '../core/effects';
 import { GameState, T } from '../core/state';
-import { buildMallet, buildPuck, setMalletColors, setPuckLook } from './pieces';
+import { buildMallet, buildPuck, puckTheme, setMalletColors, setPuckLook } from './pieces';
+import { THEMES, surfaceTexture } from './textures';
 import { RAIL_W, TableParts, buildTable } from './table';
 
 export type Quality = 'high' | 'low';
@@ -65,6 +66,21 @@ export class View {
 
     window.addEventListener('resize', () => this.resize());
     this.resize();
+  }
+
+  theme = 'classic';
+  /** Table theme (campaign reward): surface colours, rail tint, puck colour. */
+  setTheme(name: string): void {
+    const th = THEMES[name] ?? THEMES.classic;
+    if ((THEMES[name] ? name : 'classic') === this.theme) return;
+    this.theme = THEMES[name] ? name : 'classic';
+    const mat = this.table.surface.material as THREE.MeshStandardMaterial;
+    mat.map?.dispose();
+    mat.map = surfaceTexture(this.renderer.capabilities.getMaxAnisotropy(), th);
+    mat.needsUpdate = true;
+    this.table.wood.color.setHex(th.rail);
+    puckTheme.body = th.puck;
+    puckTheme.ring = th.puckRing;
   }
 
   setQuality(q: Quality): void {
