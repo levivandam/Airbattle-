@@ -20,7 +20,10 @@ export class PointerInput {
   constructor(private view: View) {
     const opts = { passive: false } as const;
     window.addEventListener('pointerdown', (e) => this.down(e), opts);
-    window.addEventListener('pointermove', (e) => this.move(e), opts);
+    // pointerrawupdate (Chrome/Edge) delivers mouse positions as soon as they arrive instead of once per frame
+    const raw = 'onpointerrawupdate' in window;
+    window.addEventListener(raw ? ('pointerrawupdate' as 'pointermove') : 'pointermove', (e) => this.move(e), opts);
+    if (raw) window.addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse') this.move(e); }, opts);
     window.addEventListener('pointerup', (e) => this.owner.delete(e.pointerId));
     window.addEventListener('pointercancel', (e) => this.owner.delete(e.pointerId));
     // stop the page from scrolling / zooming while playing
@@ -51,6 +54,7 @@ export class PointerInput {
 
   private move(e: PointerEvent): void {
     if (!this.enabled) return;
+    if (e.type === 'pointerrawupdate' && e.pointerType !== 'mouse') return; // touch/pen use pointermove
     let who = this.owner.get(e.pointerId);
     if (who === undefined) {
       if (e.pointerType !== 'mouse') return;

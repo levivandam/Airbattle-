@@ -10,7 +10,7 @@ export const T = {
   GOAL_HALF: 0.17,
   PUCK_R: 0.045,
   MALLET_R: 0.062,
-  PUCK_MAX: 6.5,
+  PUCK_MAX: 5.0,
   MALLET_MAX: 60, // safety cap only: human mallets sit 1:1 under the pointer
   DT: 1 / 120,
   SHIELD_INSET: 0.13,

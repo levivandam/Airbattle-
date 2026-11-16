@@ -8,7 +8,7 @@
 - **Live URL:** https://levivandam.github.io/Airbattle-/ (live)
 
 ## Next step
-1. **Levi was asked to playtest Phase 10** (controls, WASD, each bot level). Apply his feedback first: physics numbers in `src/core/physics.ts` (`MALLET_E`, `DRAG`, `HIT_SMOOTH`) and `T` in `src/core/state.ts` (`PUCK_MAX`, `PUCK_R`); bot numbers in `src/ai/botConfig.ts` (one row per level; `speed`/`strike`/`reaction` matter most).
+1. Phase 10 feedback applied (see Done). Still open: **WASD feels bad** — ask Levi what exactly (too slow? too twitchy? dash?). Tuning places: physics numbers in `src/core/physics.ts` (`MALLET_E`, `DRAG`, `HIT_SMOOTH`) and `T` in `src/core/state.ts` (`PUCK_MAX`, `PUCK_R`); bot numbers in `src/ai/botConfig.ts` (one row per level; `speed`/`strike`/`reaction` matter most).
 2. Then **Phase 11** (campaign engine + World 1), see SPEC-V2 §B. Start with segment walls + circular bumpers in physics, then the level data format in `src/campaign/`.
 
 Firebase (needed for Phase 12): **config received and saved in `src/net/firebaseConfig.ts`** (project `airbattle-9491c`, Realtime Database in europe-west1 exists). Levi still had to enable Anonymous + Google sign-in and add the authorized domain (steps 3–4 below) — verify at the start of Phase 12 (an anonymous sign-in error `auth/operation-not-allowed` means it's not enabled). Original steps (Firebase's console menu has moved: Realtime Database is under 'Databases & Storage', Authentication under 'Security'):
@@ -40,6 +40,8 @@ Firebase (needed for Phase 12): **config received and saved in `src/net/firebase
 - 2026-11-16 — README.md written for Levi.
 
 - 2026-11-16 — Phase 10: mallet 1:1 under the pointer (no smoothing; `MALLET_MAX` 60 is only a safety cap), swept mallet–puck collision with dynamic sub-steps, hit strength from averaged mallet velocity, `PUCK_MAX` 6.5, puck radius 0.045, pick plane at grip height, local mallets drawn without interpolation (`view.direct`), cursor hidden, aim line (`render/fx.ts`, setting `aimLine`), WASD/arrows solo with auto-switch + dash (`SoloKeys` in `input/keyboard.ts`, driven from `Game.frame`), bot rewritten (`ai/bot.ts`: look → decide → hand motion; 8 moves with anti-repeat memory, patience, risk/press, mood, idle drift, mistakes, adapt) with levels Rookie/Easy/Normal/Hard/Pro/Adaptive (`ai/botConfig.ts`). Tests: 7 passing incl. fast-flick, 1-tick follow and bot-variety checks.
+
+- 2026-11-16 — Levi's Phase 10 feedback: mouse feels better but could be smoother; puck too fast; bots improved; WASD plays badly (not fixed yet). Applied: pointer movement spread evenly over the physics ticks of each frame (`HumanPointer` in `game.ts`), `pointerrawupdate` for lower mouse latency, `PUCK_MAX` 5.0, `MALLET_E` 0.62, `DRAG` 0.5.
 
 ## In progress
 - (nothing)

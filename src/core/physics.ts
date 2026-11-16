@@ -13,8 +13,8 @@ import {
 import { GameEvent, GameState, Mallet, PlayerId, Puck, T } from './state';
 
 const WALL_E = 0.9;
-const MALLET_E = 0.72;
-const DRAG = 0.3; // per second, very light (air table)
+const MALLET_E = 0.62;
+const DRAG = 0.5; // per second, very light (air table)
 const HIT_SMOOTH = 0.35; // hit strength uses the mallet velocity averaged over ~3 ticks
 
 const clamp = (v: number, lo: number, hi: number) => (v < lo ? lo : v > hi ? hi : v);

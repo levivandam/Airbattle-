@@ -28,14 +28,18 @@ class HumanPointer implements Controller {
   constructor(
     private input: PointerInput,
     private me: PlayerId,
+    private ticksLeft: () => number,
   ) {}
   update(s: GameState): void {
     const t = this.input.targets[this.me];
     const m = s.mallets[this.me];
     m.cap = T.MALLET_MAX;
     if (t) {
-      m.tx = t.x;
-      m.ty = t.y;
+      // The pointer updates once per screen frame, the physics runs 2+ ticks per frame.
+      // Spread the movement evenly over this frame's ticks: smooth motion and steady hit speed.
+      const n = Math.max(1, this.ticksLeft());
+      m.tx += (t.x - m.tx) / n;
+      m.ty += (t.y - m.ty) / n;
     }
   }
 }
@@ -49,6 +53,9 @@ export class Game {
   /** which player the person at this device is (camera + "you win") */
   local: PlayerId = 0;
   private acc = 0;
+  /** ticks still to run in the current frame (used to spread pointer movement) */
+  private left = 1;
+  private readonly ticksLeft = () => this.left;
   private last = 0;
   private events: GameEvent[] = [];
   private listeners: Array<(e: GameEvent, s: GameState) => void> = [];
@@ -101,17 +108,17 @@ export class Game {
         const params = { ...(config.difficulty === 'adaptive' ? blendParams(adaptiveSkill(0, 0)) : BOT[config.difficulty]) };
         if (config.botParams) Object.assign(params, config.botParams);
         this.bot = new Bot(1, params);
-        this.controllers = [new HumanPointer(this.input, 0), this.bot];
+        this.controllers = [new HumanPointer(this.input, 0, this.ticksLeft), this.bot];
         break;
       }
       case 'local':
-        this.controllers = [new HumanPointer(this.input, 0), new HumanPointer(this.input, 1), ...extra];
+        this.controllers = [new HumanPointer(this.input, 0, this.ticksLeft), new HumanPointer(this.input, 1, this.ticksLeft), ...extra];
         break;
       case 'host':
-        this.controllers = [new HumanPointer(this.input, 0), ...extra];
+        this.controllers = [new HumanPointer(this.input, 0, this.ticksLeft), ...extra];
         break;
       case 'guest':
-        this.controllers = [new HumanPointer(this.input, 1), ...extra];
+        this.controllers = [new HumanPointer(this.input, 1, this.ticksLeft), ...extra];
         break;
     }
   }
@@ -145,7 +152,9 @@ export class Game {
       } else {
         this.acc += real * this.timeScale;
         let guard = 0;
+        const n = Math.min(30, Math.floor(this.acc / T.DT));
         while (this.acc >= T.DT && guard++ < 30) {
+          this.left = Math.max(1, n - guard + 1);
           this.tick();
           this.acc -= T.DT;
         }
