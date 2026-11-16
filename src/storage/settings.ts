@@ -16,6 +16,7 @@ export interface Settings {
   p2keys: 'wasd' | 'arrows';
   color: number; // index into MALLET_COLORS
   accent: number;
+  nick: string; // nickname shown to quick-match opponents
   skin: string; // '' or an unlocked campaign skin (e.g. 'gold')
 }
 
@@ -37,6 +38,7 @@ const defaults: Settings = {
   p2keys: 'wasd',
   color: 0,
   accent: 9,
+  nick: '',
   skin: '',
 };
 

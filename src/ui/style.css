@@ -177,3 +177,15 @@ input.code:focus { border-color: var(--amber); }
 .hint.left { text-align: left; }
 .bigstars { font-size: clamp(40px, 11vmin, 72px); color: var(--amber); letter-spacing: 0.08em; margin: 2px 0 12px; text-shadow: 0 4px 0 var(--ink); line-height: 1; }
 .swatch.skin { background: linear-gradient(135deg, #fff3b0, #d9a520 45%, #8a6410); }
+
+/* ---------- quick match ---------- */
+.mmchip, .offer {
+  position: absolute; left: 50%; transform: translateX(-50%); bottom: max(14px, env(safe-area-inset-bottom));
+  background: #17131f; border: 2px solid var(--wood); border-radius: 12px; padding: 8px 10px 8px 14px; font-weight: 700; font-size: 14px;
+  display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 0 #000; white-space: nowrap;
+}
+.mmchip .btn { min-height: 36px; padding: 4px 10px; flex: 0 0 auto; }
+.offer { flex-direction: column; align-items: stretch; padding: 12px; border-color: var(--amber); width: min(320px, 92vw); white-space: normal; text-align: center; }
+.offer .row { flex-wrap: nowrap; }
+#ui .mmchip, #ui .offer { pointer-events: auto; }
+input.code.nick { font-size: 24px; letter-spacing: 0.04em; text-transform: none; }

@@ -7,6 +7,7 @@ import { intensity } from './core/match';
 import { Game } from './game';
 import { PointerInput } from './input/pointer';
 import { Online } from './net/online';
+import { QuickMatch } from './net/quick';
 import { ArenaView } from './render/arena';
 import { Fx } from './render/fx';
 import { PowerFx } from './render/powerfx';
@@ -80,6 +81,7 @@ new Campaign(app, game);
 
 // ---------- online ----------
 const online = new Online(app, game);
+new QuickMatch(app, game, online);
 app.afterTitle = () => {
   const code = Online.inviteCode();
   if (code.length !== 5) return false;

@@ -142,9 +142,21 @@ function localRoom(code: string, host: boolean, onReady: () => void, onLink: (l:
     if (d.close) link.onClose();
     else if (d.m) link.onMsg(d.m);
   };
-  setTimeout(() => {
-    if (host) onReady();
-    else ch.postMessage({ from: me, knock: true });
-  }, 50);
-  return { close: () => (link ? link.close() : ch.close()) };
+  // the guest keeps knocking until the host's room exists
+  const knock = setInterval(() => {
+    if (link || host) return clearInterval(knock);
+    try {
+      ch.postMessage({ from: me, knock: true });
+    } catch {
+      clearInterval(knock);
+    }
+  }, 300);
+  if (host) setTimeout(onReady, 50);
+  return {
+    close: () => {
+      clearInterval(knock);
+      if (link) link.close();
+      else ch.close();
+    },
+  };
 }

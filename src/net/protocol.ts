@@ -9,13 +9,13 @@ export interface NetConfig {
 }
 
 export type HostMsg =
-  | { t: 'hello'; v: number; color: number }
+  | { t: 'hello'; v: number; color: number; nick?: string }
   | { t: 'start'; config: NetConfig; color: number }
   | { t: 'snap'; q: number; s: GameState; e: Array<[number, GameEvent]>; ht: number; pe: number }
   | { t: 'bye' };
 
 export type GuestMsg =
-  | { t: 'hi'; v: number; color: number }
+  | { t: 'hi'; v: number; color: number; nick?: string }
   | { t: 'in'; x: number; y: number; pt: number; he: number; ae: number }
   | { t: 'rematch' }
   | { t: 'bye' };

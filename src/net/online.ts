@@ -51,6 +51,12 @@ export class Online {
   private mine: Mallet | null = null;
   private acc = 0;
   private lastSent = 0;
+  // quick match (matchmaking): rooms are opened and started automatically
+  private auto = false;
+  private autoTimer = 0;
+  nick = '';
+  /** adds a 'Quick match' button to the online menu when set */
+  quickMenu: (() => void) | null = null;
 
   constructor(
     private app: App,
@@ -78,8 +84,9 @@ export class Online {
     const p = el('div', 'panel stack');
     p.append(
       el('h2', '', 'Online'),
-      el('p', 'hint', 'Play a friend on another device. One of you creates a room and shares the code.'),
-      button('Create room', 'primary', () => this.create()),
+      el('p', 'hint', 'Find a random opponent, or play a friend: one of you creates a room and shares the code.'),
+      ...(this.quickMenu ? [button('Quick match', 'primary', () => this.quickMenu!())] : []),
+      button('Create room', this.quickMenu ? '' : 'primary', () => this.create()),
       button('Join room', 'blue', () => this.join('')),
       button('Back', 'ghost', () => this.app.menu()),
     );
@@ -178,6 +185,55 @@ export class Online {
     else input.focus();
   }
 
+  // ---------- quick match ----------
+  /** Open a room for a matched opponent and start as soon as they arrive. */
+  hostQuick(code: string, onFail: () => void): void {
+    this.leave();
+    this.role = 'host';
+    this.auto = true;
+    this.room = hostRoom(code, {
+      onReady: () => {},
+      onGuest: (l) => {
+        if (this.link) return l.send({ t: 'bye' });
+        this.attach(l);
+        l.send({ t: 'hello', v: PROTOCOL, color: MALLET_COLORS[settings.color], nick: this.nick });
+      },
+      onError: () => fail(),
+    });
+    const fail = () => {
+      if (this.role !== 'host' || this.inMatch) return;
+      this.leave();
+      onFail();
+    };
+    this.autoTimer = window.setTimeout(fail, 25000);
+  }
+
+  /** Join a matched opponent's room (it may take a moment before the room exists). */
+  joinQuick(code: string, onFail: () => void): void {
+    this.leave();
+    this.role = 'guest';
+    this.auto = true;
+    let tries = 0;
+    const attempt = () => {
+      this.room?.close();
+      this.room = joinRoom(code, {
+        onOpen: (l) => {
+          this.attach(l);
+          l.send({ t: 'hi', v: PROTOCOL, color: MALLET_COLORS[settings.color], nick: this.nick });
+        },
+        onError: (e) => {
+          if (this.role !== 'guest' || this.inMatch || this.link) return;
+          if (e === 'not-found' && ++tries < 10) this.autoTimer = window.setTimeout(attempt, 1500);
+          else {
+            this.leave();
+            onFail();
+          }
+        },
+      });
+    };
+    attempt();
+  }
+
   // ---------- connection ----------
   private attach(l: Link): void {
     this.link = l;
@@ -204,6 +260,8 @@ export class Online {
     }
     this.room?.close();
     this.room = null;
+    clearTimeout(this.autoTimer);
+    this.auto = false;
     this.role = null;
     this.inMatch = false;
     this.lastEv = 0;
@@ -239,7 +297,8 @@ export class Online {
   // ---------- host ----------
   private startHost(): void {
     if (!this.link) return;
-    const config: NetConfig = { mode: matchMode(), powerUps: settings.powerUps };
+    clearTimeout(this.autoTimer);
+    const config: NetConfig = this.auto ? { mode: { kind: 'goals', target: 7 }, powerUps: true } : { mode: matchMode(), powerUps: settings.powerUps };
     this.send({ t: 'start', config, color: MALLET_COLORS[settings.color] });
     this.evLog = [];
     this.tickN = 0;
@@ -271,6 +330,8 @@ export class Online {
     switch (m.t) {
       case 'hi':
         this.otherColor = m.color;
+        this.app.rivalName = m.nick ?? '';
+        if (this.auto && !this.inMatch) this.startHost();
         break;
       case 'in':
         this.remote.x = m.x;
@@ -294,8 +355,10 @@ export class Online {
     switch (m.t) {
       case 'hello':
         this.otherColor = m.color;
+        this.app.rivalName = m.nick ?? '';
         break;
       case 'start':
+        clearTimeout(this.autoTimer);
         this.otherColor = m.color;
         this.snaps = [];
         this.lastSeq = 0;

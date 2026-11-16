@@ -3,12 +3,13 @@
 > Update this file before every push. The next model only has the repo — write so they can continue instantly.
 
 ## Current status
-- **Phase:** 11 done (campaign engine + World 1 live). Next: 12 (Quick match via Firebase).
+- **Phase:** 12 built (Quick match), needs Levi to paste the database rules and test. Next build phase: 13 (campaign Worlds 2–4).
 - **Last worked by:** Fable (2026-11-16, Phases 10–11)
 - **Live URL:** https://levivandam.github.io/Airbattle-/ (live)
 
 ## Next step
-**Phase 12** (Quick match): `src/net/matchmaking.ts` on Firebase Realtime Database + anonymous auth (config is in `src/net/firebaseConfig.ts`), `database.rules.json`, bot-while-waiting, then hand off to the existing room-code flow in `src/net/online.ts`. After that Phase 13 (Worlds 2–4).
+1. **Quick match needs a real-world test.** The Firebase code path (`FirebaseLobby` in `src/net/matchmaking.ts`) has never run against the real project — the sandbox blocks Firebase. Levi must (a) enable Anonymous sign-in, (b) paste `database.rules.json` into Realtime Database → Rules → Publish, then try Quick match in two browsers. Errors show as a toast: 'anonymous sign-in is disabled' / 'database rules are missing' / 'could not reach'. Fix whatever he reports first.
+2. Then **Phase 13**: Worlds 2–4 + table themes, see below.
 
 How the campaign is put together (for adding Worlds 2–4):
 - A level is data: `src/campaign/types.ts` (`LevelDef`), worlds in `src/campaign/levels/worldN.ts`, registered in `levels/index.ts` (remove the name from `COMING` when a world is added).
@@ -52,6 +53,8 @@ Firebase (needed for Phase 12): **config received and saved in `src/net/firebase
 - 2026-11-16 — Levi: WASD too fast to aim / no tempo control → keyboard speed now ramps (tap = slow 1.1, hold 0.45 s = 3.0), dash unchanged. Not re-tested by Levi.
 - 2026-11-16 — Phase 11: campaign engine + World 1 'Training Hall' (5 levels + boss 'The Wall', reward: Gold mallet skin selectable in Settings). Decisions: boss opens at 8 of 15 stars; in custom arenas the mallet may move anywhere in the level's zone (it does not collide with walls); big courses are shown whole by fitting the camera to the level bounds instead of a follow-camera.
 
+- 2026-11-16 — Phase 12: Quick match. `src/net/matchmaking.ts` (Firebase RTDB queue `/queue/{uid}` with onDisconnect, per-user inbox `/matches/{uid}`, lowest uid in the queue claims the oldest other entry in a transaction; `?net=local` mock lobby), `src/net/quick.ts` (nickname screen, bot match while waiting, 'Opponent found' offer with 10 s accept, requeue on skip/no-show), `Online.hostQuick/joinQuick` (auto-start, join retries), nicknames in the HUD, `database.rules.json`. Firebase SDK is lazy-loaded. Tested with two tabs via `?net=local` only.
+
 ## In progress
 - (nothing)
 
@@ -73,6 +76,7 @@ Firebase (needed for Phase 12): **config received and saved in `src/net/firebase
 ## Things Levi needs to do
 - [x] Enable GitHub Pages with Source = GitHub Actions (done, deploys work)
 - [x] (Phase 12) Create the Firebase project and send the web config
-- [ ] (Phase 12) Enable Anonymous + Google sign-in and add `levivandam.github.io` as authorized domain (confirm with Levi)
+- [ ] (Phase 12) Enable Anonymous sign-in (Google sign-in + authorized domain only needed for Phase 14)
+- [ ] (Phase 12) Paste `database.rules.json` into Firebase → Realtime Database → Rules → Publish, then test Quick match in two browsers
 - [ ] (Phase 12, optional) Free TURN server account (Metered or Cloudflare) for better connections with strangers
 - [ ] (Optional) Supply CC0 music stems if he prefers real tracks over generated music

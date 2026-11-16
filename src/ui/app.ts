@@ -34,6 +34,8 @@ export class App {
   /** return true to skip the main menu after the title screen (invite links) */
   afterTitle: (() => boolean) | null = null;
   names: [string, string] = ['YOU', 'BOT'];
+  /** opponent's nickname for online matches (quick match) */
+  rivalName = '';
 
   constructor(
     readonly game: Game,
@@ -282,7 +284,7 @@ export class App {
     const controllers = kind === 'local' ? [new KeyboardController(1), ...extra] : extra;
     this.view.setCamera(local === 1, kind === 'local' ? (touch ? 0 : 9) : 15);
     this.game.start(config, controllers);
-    this.names = kind === 'bot' ? ['YOU', 'BOT'] : kind === 'local' ? ['P1', 'P2'] : ['YOU', 'RIVAL'];
+    this.names = kind === 'bot' ? ['YOU', 'BOT'] : kind === 'local' ? ['P1', 'P2'] : ['YOU', (this.rivalName || 'RIVAL').toUpperCase().slice(0, 12)];
     this.beginHud(kind, local, otherColor, this.names, false);
   }
 

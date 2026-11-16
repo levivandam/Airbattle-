@@ -101,12 +101,13 @@ Spec: `SPEC.md`. Working rules: `CLAUDE.md`.
 
 ## Phase 12 — Quick match (matchmaking) — NEEDS LEVI'S FIREBASE CONFIG
 - [x] Levi created the Firebase project + Realtime Database and gave the web config → `src/net/firebaseConfig.ts`
-- [ ] Confirm Anonymous + Google auth are enabled and `levivandam.github.io` is an authorized domain
-- [ ] `database.rules.json` + plain-Dutch instructions for Levi to paste them
-- [ ] Nickname, queue with onDisconnect, transaction matching, hand-off to PeerJS room
-- [ ] Bot while waiting + "Opponent found" accept banner
-- [ ] Optional TURN server in PeerJS config (if Levi made an account)
-- [ ] Test with two tabs (two anonymous users) and once on two real devices with Levi
+- [ ] Confirm with Levi: Anonymous sign-in enabled + `database.rules.json` pasted in the Firebase console (asked 2026-11-16)
+- [x] `database.rules.json` + plain-Dutch instructions for Levi to paste them
+- [x] Nickname, queue with onDisconnect, transaction matching, hand-off to PeerJS room
+- [x] Bot while waiting + "Opponent found" accept banner
+- [ ] Optional TURN server in PeerJS config (needs an account from Levi; not started)
+- [x] Test with two tabs (done with the `?net=local` mock lobby)
+- [ ] **Test against the real Firebase project on two devices — NOT done, the sandbox cannot reach Firebase**
 If the Firebase config is not there yet when you reach this phase: ask Levi (steps are in PROGRESS.md) and continue with Phase 13 meanwhile.
 
 ## Phase 13 — Campaign Worlds 2–4 + rewards

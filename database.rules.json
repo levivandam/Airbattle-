@@ -1,0 +1,18 @@
+{
+  "rules": {
+    "queue": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && (auth.uid === $uid || !newData.exists())",
+        ".validate": "newData.hasChildren(['nick', 'ts']) && newData.child('nick').isString() && newData.child('nick').val().length >= 3 && newData.child('nick').val().length <= 16 && newData.child('ts').isNumber()"
+      }
+    },
+    "matches": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && (auth.uid === $uid || !data.exists())",
+        ".validate": "newData.hasChildren(['code', 'nick', 'ts']) && newData.child('code').isString() && newData.child('code').val().length === 5 && newData.child('nick').isString() && newData.child('nick').val().length <= 16"
+      }
+    }
+  }
+}
