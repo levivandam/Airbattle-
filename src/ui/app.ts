@@ -1,7 +1,7 @@
 // Screen flow: title, menus, setup, pause, results. Starts matches on the Game.
 import { Difficulty } from '../ai/botConfig';
 import { PlayerId, PowerUpType } from '../core/state';
-import { CORE_TYPES } from '../core/powerups';
+import { ALL_TYPES } from '../core/powerups';
 import { Controller, Game, MatchConfig, MatchKind } from '../game';
 import { KeyboardController } from '../input/keyboard';
 import { PointerInput } from '../input/pointer';
@@ -115,7 +115,7 @@ export class App {
   private attract(): void {
     this.hud.hide();
     this.view.setCamera(false, 15);
-    this.game.start({ kind: 'attract', difficulty: 'normal', mode: { kind: 'goals', target: 7 }, powerUps: true, enabledTypes: CORE_TYPES });
+    this.game.start({ kind: 'attract', difficulty: 'normal', mode: { kind: 'goals', target: 7 }, powerUps: true, enabledTypes: ALL_TYPES });
     this.onScene('lobby');
   }
 
@@ -496,5 +496,5 @@ export class App {
 }
 
 export function enabledTypes(): PowerUpType[] {
-  return CORE_TYPES;
+  return ALL_TYPES;
 }

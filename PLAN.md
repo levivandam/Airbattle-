@@ -35,11 +35,11 @@ Spec: `SPEC.md`. Working rules: `CLAUDE.md`.
 **Done when:** two people can play on one laptop and on one phone/tablet laid flat.
 
 ## Phase 4 — Core power-ups (6)
-- [ ] Power-up system: spawner, token visual, pickup by last-toucher, instant activation, durations, HUD icons with countdown rings, refresh-not-stack
-- [ ] Power Shot, Big Mallet, Multi-Puck, Shield, Freeze, Small Goal (SPEC §7.1)
-- [ ] Bot sometimes steers for power-ups (Normal/Hard)
-- [ ] Power-ups toggle in settings works
-- [ ] Design the system so effects are **data-driven + pure functions on game state** (needed for online sync later)
+- [x] Power-up system: spawner, token visual, pickup by last-toucher, instant activation, durations, HUD icons with countdown rings, refresh-not-stack
+- [x] Power Shot, Big Mallet, Multi-Puck, Shield, Freeze, Small Goal (SPEC §7.1)
+- [x] Bot sometimes steers for power-ups (Normal/Hard)
+- [x] Power-ups toggle in settings works
+- [x] Design the system so effects are **data-driven + pure functions on game state** (needed for online sync later)
 **Done when:** all 6 work vs bot and in local PvP, with visible effects and no crashes over a few full matches.
 
 ## Phase 5 — Audio, effects, stats, customization

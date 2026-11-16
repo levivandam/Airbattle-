@@ -1,5 +1,7 @@
 // In-match HUD: scoreboard, clock, banners.
+import { DEFS } from '../core/powerups';
 import { GameEvent, GameState, PlayerId } from '../core/state';
+import { hex } from '../storage/settings';
 import { el, root } from './dom';
 
 export interface HudOptions {
@@ -35,8 +37,12 @@ export class Hud {
   readonly fx = el('div', 'fx');
   private opts: HudOptions = { names: ['YOU', 'BOT'], colors: ['#d3352b', '#2a5bc7'], local: 0, split: false };
   private lastClock = '';
+  private fxRows: [HTMLElement, HTMLElement] = [el('div', 'fxrow mine'), el('div', 'fxrow theirs')];
+  private fxSig = '';
+  private chips: Array<{ node: HTMLElement; i: number }> = [];
 
   constructor() {
+    this.fx.append(this.fxRows[0], this.fxRows[1]);
     const b1 = el('div', 'banner');
     const b2 = el('div', 'banner rot');
     this.banners = [b1, b2];
@@ -66,6 +72,8 @@ export class Hud {
       fill(b.names[1], them, false);
       this.node.prepend(b.node);
     }
+    this.fxRows[1].classList.toggle('rot', o.split);
+    this.fxSig = '?';
     this.banners[0].style.top = o.split ? '72%' : '50%';
     this.banners[1].style.top = '28%';
     this.banners[1].style.display = o.split ? '' : 'none';
@@ -92,6 +100,7 @@ export class Hud {
       const t = Math.ceil(s.timeLeft);
       c = Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0');
     } else c = 'FIRST TO ' + s.mode.target;
+    this.updateFx(s);
     const clockChanged = c !== this.lastClock;
     this.lastClock = c;
     for (const b of this.boards) {
@@ -103,6 +112,29 @@ export class Hud {
         b.clock.textContent = c;
         b.clock.classList.toggle('hot', s.golden || (s.mode.kind === 'time' && s.timeLeft <= 30));
       }
+    }
+  }
+
+  /** Active power-up chips with a countdown ring. */
+  private updateFx(s: GameState): void {
+    const mineId: PlayerId = this.opts.split ? 0 : this.opts.local;
+    const sig = s.effects.map((e) => e.type + e.owner).join(',');
+    if (sig !== this.fxSig) {
+      this.fxSig = sig;
+      this.fxRows[0].replaceChildren();
+      this.fxRows[1].replaceChildren();
+      this.chips = s.effects.map((e, i) => {
+        const d = DEFS[e.type];
+        const node = el('div', 'chip', '', { title: d.name });
+        node.style.setProperty('--c', hex(d.color));
+        node.append(el('span', '', d.icon));
+        this.fxRows[e.owner === mineId ? 0 : 1].append(node);
+        return { node, i };
+      });
+    }
+    for (const c of this.chips) {
+      const e = s.effects[c.i];
+      if (e) c.node.style.setProperty('--p', String(Math.max(0, e.timeLeft / e.total)));
     }
   }
 
@@ -126,6 +158,9 @@ export class Hud {
         break;
       case 'matchpoint':
         setTimeout(() => this.banner('MATCH POINT', 'amber', true), 1150);
+        break;
+      case 'pickup':
+        this.banner(DEFS[e.type].name.toUpperCase() + '!', colorOf(e.player), true);
         break;
       case 'golden':
         this.banner('GOLDEN GOAL', 'amber', true);

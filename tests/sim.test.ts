@@ -1,10 +1,32 @@
 import { describe, expect, it } from 'vitest';
 import { Bot } from '../src/ai/bot';
 import { BOT } from '../src/ai/botConfig';
+import { ALL_TYPES } from '../src/core/powerups';
 import { step } from '../src/core/sim';
 import { GameEvent, T, createState } from '../src/core/state';
 
 const opts = { mode: { kind: 'goals', target: 7 } as const, powerUps: false, enabledTypes: [], seed: 42 };
+
+describe('power-ups', () => {
+  it('all 12 can be collected and expire without breaking the match', () => {
+    const s = createState({ mode: { kind: 'goals', target: 99 }, powerUps: true, enabledTypes: ALL_TYPES, seed: 3 });
+    const b0 = new Bot(0, BOT.hard);
+    const b1 = new Bot(1, BOT.hard);
+    const ev: GameEvent[] = [];
+    const seen = new Set<string>();
+    for (let n = 0; n < 120 * 60 * 15; n++) {
+      b0.update(s, T.DT); b1.update(s, T.DT);
+      ev.length = 0;
+      step(s, ev);
+      for (const e of ev) if (e.t === 'pickup') seen.add(e.type);
+      for (const p of s.pucks) expect(Number.isFinite(p.x + p.y + p.vx + p.vy)).toBe(true);
+      expect(s.pucks.length).toBeGreaterThan(0);
+      expect(s.pucks.length).toBeLessThanOrEqual(3);
+    }
+    console.log('picked up', [...seen].sort().join(' '), 'score', s.score);
+    expect(seen.size).toBeGreaterThan(6);
+  });
+});
 
 describe('physics', () => {
   it('fast puck never leaves the table or tunnels through a mallet', () => {

@@ -1,12 +1,14 @@
 import './ui/style.css';
 import { Game } from './game';
 import { PointerInput } from './input/pointer';
+import { PowerFx } from './render/powerfx';
 import { View } from './render/view';
 import { App } from './ui/app';
 import { Hud } from './ui/hud';
 
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 const view = new View(canvas);
+new PowerFx(view);
 const input = new PointerInput(view);
 const game = new Game(view, input);
 const hud = new Hud();

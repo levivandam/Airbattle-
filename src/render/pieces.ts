@@ -49,7 +49,7 @@ export function buildPuck(): THREE.Group {
   const g = new THREE.Group();
   const body = new THREE.Mesh(
     puckGeo,
-    new THREE.MeshStandardMaterial({ color: 0x18181c, roughness: 0.25, metalness: 0.1, transparent: true }),
+    new THREE.MeshStandardMaterial({ color: 0x18181c, roughness: 0.62, metalness: 0.0, transparent: true }),
   );
   body.position.y = 0.008;
   body.castShadow = true;

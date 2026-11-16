@@ -46,6 +46,16 @@ html, body {
 .board.near .clock, .board.far .clock { top: auto; bottom: 100%; transform: translate(-50%, -4px); border: 2px solid #3a2f2a; border-bottom: 0; border-radius: 8px 8px 0 0; }
 .board.near .name, .board.far .name { font-size: 0; gap: 0; }
 .fx { position: absolute; inset: 0; }
+.fxrow { position: absolute; left: max(10px, env(safe-area-inset-left)); display: flex; flex-direction: column; gap: 8px; }
+.fxrow.mine { bottom: max(64px, calc(env(safe-area-inset-bottom) + 64px)); flex-direction: column-reverse; }
+.fxrow.theirs { top: max(64px, calc(env(safe-area-inset-top) + 64px)); }
+.fxrow.theirs.rot { left: auto; right: max(10px, env(safe-area-inset-right)); rotate: 180deg; flex-direction: column-reverse; }
+.chip {
+  --p: 1; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-size: 22px;
+  background: conic-gradient(var(--c) calc(var(--p) * 1turn), #2a2430 0); box-shadow: 0 3px 0 #000; animation: chipin 0.25s ease-out;
+}
+.chip span { width: 36px; height: 36px; border-radius: 50%; background: #17131f; display: grid; place-items: center; line-height: 1; }
+@keyframes chipin { from { scale: 0.3; opacity: 0; } }
 .board .name { font: 700 13px var(--body); letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.9; display: flex; align-items: center; gap: 6px; }
 .board .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c, var(--red)); box-shadow: 0 0 0 2px rgba(255,255,255,.15); }
 .board .digits {

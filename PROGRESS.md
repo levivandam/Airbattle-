@@ -3,12 +3,12 @@
 > Update this file before every push. The next model only has the repo — write so they can continue instantly.
 
 ## Current status
-- **Phase:** 4 (starting) — Phases 1–3 done (core, menus/bot levels, local 2P)
+- **Phase:** 5 (starting) — Phases 1–4 done (core, menus/bot levels, local 2P, power-ups)
 - **Last worked by:** Fable (2026-11-16)
-- **Live URL:** https://levivandam.github.io/Airbattle-/ (not deployed yet)
+- **Live URL:** https://levivandam.github.io/Airbattle-/ (live)
 
 ## Next step
-Phase 4: implement spawning/pickup/activation in `src/core/powerups/index.ts` (queries already in `core/effects.ts`, physics already honours them), token + shield + freeze visuals in `src/render/powerfx.ts` (register via `view.layers`), HUD effect icons with countdown rings in `src/ui/hud.ts` (`hud.fx` container exists). `CORE_TYPES` lists the 6 core power-ups.
+Phase 5: `src/audio/sfx.ts` + `src/audio/music.ts` (procedural adaptive music L0–L3, driven by `intensity()` from `core/match.ts` and `app.onScene`), `src/render/fx.ts` (screen shake, goal particles, puck trail, slow-mo on the winning goal via `game.timeScale`). Stats, mallet colours and graphics Low/auto are already done.
 
 ## How to check things quickly
 - `npm test` — headless physics/bot sanity tests (vitest).
@@ -24,16 +24,20 @@ Phase 4: implement spawning/pickup/activation in `src/core/powerups/index.ts` (q
 - 2026-11-16 — Phase 2: `src/ui/app.ts` (title, menu, bot setup, settings, stats, pause, results), `src/storage/settings.ts` + `stats.ts`, bot levels incl. adaptive, time mode + golden goal, attract-mode (bot vs bot) behind the menus, auto Low graphics.
 - 2026-11-16 — Phase 3: local 2P — mouse (P1) vs keyboard (`src/input/keyboard.ts`, P2), split multi-touch (`src/input/pointer.ts` mode 'split'), two mirrored scoreboards + mirrored banners on touch.
 
+- 2026-11-16 — Phase 4: power-up system in `src/core/powerups/index.ts` (DEFS table, spawn every 8–12 s, pickup by last toucher, refresh-not-stack), visuals in `src/render/powerfx.ts`, HUD chips with countdown rings. **All 12 power-ups are implemented and enabled already** (the 6 extra ones were cheap because physics reads effects through `core/effects.ts`), so Phase 7 is reduced to a balance pass + online check.
+
 ## In progress
 - (nothing)
 
 ## Known bugs / issues
-- GitHub Pages was not enabled at first push (deploy run failed). Levi was asked to set Settings → Pages → Source: GitHub Actions. Check `gh run list -R levivandam/Airbattle-`.
+- (none known) — feel/balance has only been checked with bots and screenshots, not by a human yet.
 
 ## Decisions log
 - 2026-11-16 — Stack: Vite + TS + Three.js, own 2D physics, PeerJS for online, procedural adaptive music by default. Offline game fully finished (Phase 5) before online work (Phase 6). Core 6 power-ups first, extra 6 later. Matchmaking last and needs Levi's Firebase/Supabase account.
 
+- 2026-11-16 — Extra 6 power-ups built together with the core 6 (same data-driven system); `enabledTypes()` in `ui/app.ts` returns ALL_TYPES.
+
 ## Things Levi needs to do
-- [ ] Enable GitHub Pages with Source = GitHub Actions (only if the first deploy asks for it)
+- [x] Enable GitHub Pages with Source = GitHub Actions (done, deploys work)
 - [ ] (Phase 8) Create a free Firebase or Supabase project
 - [ ] (Optional) Supply CC0 music stems if he prefers real tracks over generated music
