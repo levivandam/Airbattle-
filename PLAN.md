@@ -14,12 +14,12 @@ Spec: `SPEC.md`. Working rules: `CLAUDE.md`.
 **Done when:** a placeholder page with a spinning 3D table-shaped box is live on the Pages URL.
 
 ## Phase 1 — Core game (vs simple bot)
-- [ ] 3D arcade table (rail, markings, goals), lighting, shadows, camera per SPEC §3
-- [ ] 2D physics module (fixed 120 Hz, swept collisions, no tunneling) — pure TS, no Three.js imports
-- [ ] Mouse + touch control of the bottom mallet; mallet can't cross center
-- [ ] Simple bot (Normal-ish) for the top mallet
-- [ ] Goals, scoring, first-to-7, puck reset after goal, stuck-puck rule
-- [ ] Minimal HUD (score)
+- [x] 3D arcade table (rail, markings, goals), lighting, shadows, camera per SPEC §3
+- [x] 2D physics module (fixed 120 Hz, swept collisions, no tunneling) — pure TS, no Three.js imports
+- [x] Mouse + touch control of the bottom mallet; mallet can't cross center
+- [x] Simple bot (Normal-ish) for the top mallet
+- [x] Goals, scoring, first-to-7, puck reset after goal, stuck-puck rule
+- [x] Minimal HUD (score)
 **Done when:** you can play a full match to 7 vs the bot on laptop and phone, and it feels good (hard hits possible, no tunneling).
 
 ## Phase 2 — Game flow & bot levels
