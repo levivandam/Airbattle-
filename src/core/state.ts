@@ -8,10 +8,10 @@ export const T = {
   HW: 0.5, // half width
   HL: 1.0, // half length
   GOAL_HALF: 0.17,
-  PUCK_R: 0.038,
+  PUCK_R: 0.045,
   MALLET_R: 0.062,
-  PUCK_MAX: 4.0,
-  MALLET_MAX: 5.0,
+  PUCK_MAX: 6.5,
+  MALLET_MAX: 60, // safety cap only: human mallets sit 1:1 under the pointer
   DT: 1 / 120,
   SHIELD_INSET: 0.13,
   TOKEN_R: 0.07,

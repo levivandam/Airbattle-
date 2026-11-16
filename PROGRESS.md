@@ -3,12 +3,13 @@
 > Update this file before every push. The next model only has the repo — write so they can continue instantly.
 
 ## Current status
-- **Phase:** 10 (next) — v1 (Phases 0–7) is live. Levi playtested it; v2 plan written in `SPEC-V2.md` + PLAN.md Phases 10–14.
-- **Last worked by:** Opus (v2 planning, 2026-11-16) after Fable built Phases 0–7
+- **Phase:** 10 built and live, **waiting for Levi's playtest feedback before tuning further**. Next build phase: 11 (campaign).
+- **Last worked by:** Fable (2026-11-16, Phase 10)
 - **Live URL:** https://levivandam.github.io/Airbattle-/ (live)
 
 ## Next step
-**Read `SPEC-V2.md` first.** Then start **Phase 10** (controls, feel, WASD solo, bot rebalance). Root causes of the bad controls are listed in SPEC-V2 §A: start in `src/core/physics.ts` (`moveMallet`, `collideMallet`, `stepPuck`), `src/core/state.ts` (`T`), `src/game.ts` (HumanPointer), `src/render/view.ts` (pick plane, mallet interpolation), `src/ai/botConfig.ts`.
+1. **Levi was asked to playtest Phase 10** (controls, WASD, each bot level). Apply his feedback first: physics numbers in `src/core/physics.ts` (`MALLET_E`, `DRAG`, `HIT_SMOOTH`) and `T` in `src/core/state.ts` (`PUCK_MAX`, `PUCK_R`); bot numbers in `src/ai/botConfig.ts` (one row per level; `speed`/`strike`/`reaction` matter most).
+2. Then **Phase 11** (campaign engine + World 1), see SPEC-V2 §B. Start with segment walls + circular bumpers in physics, then the level data format in `src/campaign/`.
 
 Firebase (needed for Phase 12): **config received and saved in `src/net/firebaseConfig.ts`** (project `airbattle-9491c`, Realtime Database in europe-west1 exists). Levi still had to enable Anonymous + Google sign-in and add the authorized domain (steps 3–4 below) — verify at the start of Phase 12 (an anonymous sign-in error `auth/operation-not-allowed` means it's not enabled). Original steps (Firebase's console menu has moved: Realtime Database is under 'Databases & Storage', Authentication under 'Security'):
 1. https://console.firebase.google.com → Add project "airbattle" → Google Analytics off → Create.
@@ -38,6 +39,8 @@ Firebase (needed for Phase 12): **config received and saved in `src/net/firebase
 - 2026-11-16 — Phase 6: online with room codes. `src/net/peer.ts` (PeerJS transport, lazy-loaded; `?net=local` = BroadcastChannel transport for testing two tabs), `src/net/protocol.ts`, `src/net/online.ts` (lobby screens, host-authoritative snapshots at 30 Hz, guest interpolation 100 ms + own-mallet prediction, events with ack, ping, disconnect + rematch, `?room=CODE` invite links). Tested end-to-end with two tabs via `?net=local`.
 - 2026-11-16 — README.md written for Levi.
 
+- 2026-11-16 — Phase 10: mallet 1:1 under the pointer (no smoothing; `MALLET_MAX` 60 is only a safety cap), swept mallet–puck collision with dynamic sub-steps, hit strength from averaged mallet velocity, `PUCK_MAX` 6.5, puck radius 0.045, pick plane at grip height, local mallets drawn without interpolation (`view.direct`), cursor hidden, aim line (`render/fx.ts`, setting `aimLine`), WASD/arrows solo with auto-switch + dash (`SoloKeys` in `input/keyboard.ts`, driven from `Game.frame`), bot rewritten (`ai/bot.ts`: look → decide → hand motion; 8 moves with anti-repeat memory, patience, risk/press, mood, idle drift, mistakes, adapt) with levels Rookie/Easy/Normal/Hard/Pro/Adaptive (`ai/botConfig.ts`). Tests: 7 passing incl. fast-flick, 1-tick follow and bot-variety checks.
+
 ## In progress
 - (nothing)
 
@@ -53,6 +56,8 @@ Firebase (needed for Phase 12): **config received and saved in `src/net/firebase
 - 2026-11-16 — Stack: Vite + TS + Three.js, own 2D physics, PeerJS for online, procedural adaptive music by default. Offline game fully finished (Phase 5) before online work (Phase 6). Core 6 power-ups first, extra 6 later. Matchmaking last and needs Levi's Firebase/Supabase account.
 
 - 2026-11-16 — Extra 6 power-ups built together with the core 6 (same data-driven system); `enabledTypes()` in `ui/app.ts` returns ALL_TYPES.
+
+- 2026-11-16 — Known side effect of 1:1 controls: the Speed Boost power-up does nothing for mouse/touch players (it still helps keyboard players and bots). Consider replacing its effect (e.g. stronger hits + faster dash) in a balance pass.
 
 ## Things Levi needs to do
 - [x] Enable GitHub Pages with Source = GitHub Actions (done, deploys work)

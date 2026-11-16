@@ -16,7 +16,7 @@ export interface Stats {
 }
 
 const KEY = 'airbattle.stats.v1';
-const zero = (): Record<Difficulty, number> => ({ easy: 0, normal: 0, hard: 0, adaptive: 0 });
+const zero = (): Record<Difficulty, number> => ({ rookie: 0, easy: 0, normal: 0, hard: 0, pro: 0, adaptive: 0 });
 const fresh = (): Stats => ({
   wins: zero(), losses: zero(), streak: 0, bestStreak: 0, goals: 0, fastest: 0,
   matches: 0, localMatches: 0, onlineMatches: 0, onlineWins: 0,

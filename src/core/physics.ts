@@ -13,9 +13,9 @@ import {
 import { GameEvent, GameState, Mallet, PlayerId, Puck, T } from './state';
 
 const WALL_E = 0.9;
-const MALLET_E = 0.82;
-const DRAG = 0.22; // per second, very light (air table)
-const FOLLOW = 55; // how tightly the mallet follows its target (1/s)
+const MALLET_E = 0.72;
+const DRAG = 0.3; // per second, very light (air table)
+const HIT_SMOOTH = 0.35; // hit strength uses the mallet velocity averaged over ~3 ticks
 
 const clamp = (v: number, lo: number, hi: number) => (v < lo ? lo : v > hi ? hi : v);
 
@@ -47,9 +47,9 @@ export function moveMallet(s: GameState, p: PlayerId, dt: number): void {
     nvx = m.vx + (wantX - m.vx) * k;
     nvy = m.vy + (wantY - m.vy) * k;
   } else {
-    const k = 1 - Math.exp(-dt * FOLLOW);
-    nvx = ((tx - m.x) * k) / dt;
-    nvy = ((ty - m.y) * k) / dt;
+    // 1:1 — go straight to the target this tick (no smoothing, no lag)
+    nvx = (tx - m.x) / dt;
+    nvy = (ty - m.y) / dt;
   }
   const sp = Math.hypot(nvx, nvy);
   if (sp > max) {
@@ -65,8 +65,14 @@ export function moveMallet(s: GameState, p: PlayerId, dt: number): void {
   if (cy !== ny) nvy = 0;
   nx = cx;
   ny = cy;
-  m.vx = nvx;
-  m.vy = nvy;
+  if (isIcy(s, p)) {
+    m.vx = nvx;
+    m.vy = nvy;
+  } else {
+    // pointer events arrive in bursts; average so a flick gives a steady, strong hit
+    m.vx += (nvx - m.vx) * HIT_SMOOTH;
+    m.vy += (nvy - m.vy) * HIT_SMOOTH;
+  }
   m.x = nx;
   m.y = ny;
 }
@@ -143,7 +149,10 @@ export function stepPuck(s: GameState, p: Puck, dt: number, ev: GameEvent[]): -1
   p.vx *= damp;
   p.vy *= damp;
 
-  const SUB = 2;
+  // swept collision: sub-step so that neither the puck nor a fast mallet moves more than half a puck radius at once
+  let reach = Math.hypot(p.vx, p.vy) * dt;
+  for (const m of s.mallets) reach = Math.max(reach, Math.hypot(m.x - m.px, m.y - m.py));
+  const SUB = Math.max(2, Math.min(24, Math.ceil(reach / (p.r * 0.5))));
   const h = dt / SUB;
   for (let k = 1; k <= SUB; k++) {
     p.x += p.vx * h;

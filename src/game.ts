@@ -3,6 +3,7 @@ import { Bot } from './ai/bot';
 import { BOT, Difficulty, adaptiveSkill, blendParams } from './ai/botConfig';
 import { step } from './core/sim';
 import { GameEvent, GameState, MatchMode, PlayerId, PowerUpType, T, createState } from './core/state';
+import { SoloKeys } from './input/keyboard';
 import { PointerInput } from './input/pointer';
 import { View } from './render/view';
 
@@ -14,6 +15,8 @@ export interface MatchConfig {
   mode: MatchMode;
   powerUps: boolean;
   enabledTypes: PowerUpType[];
+  /** optional overrides for the bot (campaign bosses) */
+  botParams?: Partial<import('./ai/botConfig').BotParams>;
 }
 
 /** Something that sets a mallet target every tick. */
@@ -55,6 +58,7 @@ export class Game {
   /** called after every simulated tick (online host sends snapshots) */
   afterTick: ((s: GameState, ev: GameEvent[]) => void) | null = null;
   private bot: Bot | null = null;
+  readonly solo = new SoloKeys();
 
   constructor(
     readonly view: View,
@@ -87,13 +91,15 @@ export class Game {
     this.local = config.kind === 'guest' ? 1 : 0;
     this.input.local = this.local;
     this.input.enabled = config.kind !== 'attract';
+    this.view.direct = config.kind === 'attract' ? [false, false] : config.kind === 'local' ? [true, true] : [this.local === 0, this.local === 1];
     switch (config.kind) {
       case 'attract':
         this.state.phase = 'play';
         this.controllers = [new Bot(0, BOT.normal), new Bot(1, BOT.normal)];
         break;
       case 'bot': {
-        const params = config.difficulty === 'adaptive' ? blendParams(adaptiveSkill(0, 0)) : BOT[config.difficulty];
+        const params = { ...(config.difficulty === 'adaptive' ? blendParams(adaptiveSkill(0, 0)) : BOT[config.difficulty]) };
+        if (config.botParams) Object.assign(params, config.botParams);
         this.bot = new Bot(1, params);
         this.controllers = [new HumanPointer(this.input, 0), this.bot];
         break;
@@ -132,6 +138,8 @@ export class Game {
     this.last = now;
     if (!this.state) return;
     if (!this.paused) {
+      const k = this.config.kind;
+      if (k === 'bot' || k === 'host' || k === 'guest') this.solo.update(this.state, this.local, this.input, real);
       if (this.external) {
         this.external(real);
       } else {

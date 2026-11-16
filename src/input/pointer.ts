@@ -11,6 +11,8 @@ export class PointerInput {
   enabled = true;
   /** latest target per player, or null if that player has no pointer yet */
   targets: [{ x: number; y: number } | null, { x: number; y: number } | null] = [null, null];
+  /** which input steered last in single-player modes (see SoloKeys) */
+  source: 'pointer' | 'keys' = 'pointer';
   private owner = new Map<number, PlayerId>();
   /** true once a touch was seen (used to pick touch-friendly layouts) */
   static touchSeen = false;
@@ -29,6 +31,7 @@ export class PointerInput {
 
   reset(): void {
     this.targets = [null, null];
+    this.source = 'pointer';
     this.owner.clear();
   }
 
@@ -60,5 +63,6 @@ export class PointerInput {
   private apply(e: PointerEvent, who: PlayerId, hit: { x: number; y: number }): void {
     const lift = e.pointerType === 'touch' ? TOUCH_LIFT * (who === 0 ? 1 : -1) : 0;
     this.targets[who] = { x: hit.x, y: hit.y + lift };
+    this.source = 'pointer';
   }
 }

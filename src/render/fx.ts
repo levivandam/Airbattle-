@@ -1,7 +1,7 @@
 // Event-driven effects: particles, puck trail, screen shake, goal flash, slow-motion finish.
 import * as THREE from 'three';
 import { DEFS } from '../core/powerups';
-import { GameEvent, GameState } from '../core/state';
+import { GameEvent, GameState, T } from '../core/state';
 import { Game } from '../game';
 import { settings } from '../storage/settings';
 import { View } from './view';
@@ -25,6 +25,9 @@ export class Fx {
   private tmp = new THREE.Color();
   private mineColor = 0xd3352b;
   private theirColor = 0x2a5bc7;
+  private aim: THREE.Line;
+  private aimLife = 0;
+  private dashRing: THREE.Mesh;
 
   constructor(
     private view: View,
@@ -51,6 +54,21 @@ export class Fx {
     this.points = new THREE.Points(geo, mat);
     this.points.frustumCulled = false;
     view.scene.add(this.points);
+    // aim line: shows where a hard shot is heading (incl. one wall bounce)
+    const ag = new THREE.BufferGeometry();
+    ag.setAttribute('position', new THREE.BufferAttribute(new Float32Array(9), 3));
+    this.aim = new THREE.Line(ag, new THREE.LineBasicMaterial({ color: 0x1d3f8f, transparent: true, opacity: 0, depthWrite: false }));
+    this.aim.frustumCulled = false;
+    view.scene.add(this.aim);
+    // dash cooldown ring under the keyboard player's mallet
+    this.dashRing = new THREE.Mesh(
+      new THREE.RingGeometry(1.15, 1.3, 40),
+      new THREE.MeshBasicMaterial({ color: 0xf2b632, transparent: true, opacity: 0.8, depthWrite: false }),
+    );
+    this.dashRing.rotation.x = -Math.PI / 2;
+    this.dashRing.position.y = 0.003;
+    this.dashRing.visible = false;
+    view.scene.add(this.dashRing);
     game.onEvent((e, s) => this.onEvent(e, s));
     view.layers.push((s, _a, dt) => this.update(s, dt));
   }
@@ -86,6 +104,7 @@ export class Fx {
     const attract = this.game.config.kind === 'attract';
     switch (e.t) {
       case 'hit':
+        if (e.speed > 2.5 && settings.aimLine && this.view.direct[e.player]) this.showAim(s, e.x, e.y);
         if (e.speed > 2.4) {
           this.burst(e.x, e.y, 0xfff2c4, 5, 0.6, 0.3);
           if (settings.shake && !attract) this.shakeAmp = Math.min(0.03, this.shakeAmp + (e.speed - 2.4) * 0.008);
@@ -111,7 +130,47 @@ export class Fx {
     void s;
   }
 
+  private showAim(s: GameState, x: number, y: number): void {
+    let puck = s.pucks[0];
+    for (const p of s.pucks) if (Math.hypot(p.x - x, p.y - y) < Math.hypot(puck.x - x, puck.y - y)) puck = p;
+    if (!puck) return;
+    const pts: number[] = [puck.x, puck.y];
+    let px = puck.x;
+    let py = puck.y;
+    let vx = puck.vx;
+    let vy = puck.vy;
+    const xl = T.HW - puck.r;
+    for (let seg = 0; seg < 2; seg++) {
+      const tx = vx > 0 ? (xl - px) / vx : vx < 0 ? (-xl - px) / vx : Infinity;
+      const ty = vy > 0 ? (T.HL - py) / vy : vy < 0 ? (-T.HL - py) / vy : Infinity;
+      const t = Math.min(tx, ty, seg === 0 ? Infinity : 0.9 / Math.hypot(vx, vy));
+      if (!isFinite(t)) break;
+      px += vx * t;
+      py += vy * t;
+      pts.push(px, py);
+      if (t !== tx) break;
+      vx = -vx;
+    }
+    while (pts.length < 6) pts.push(px, py);
+    const a = this.aim.geometry.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < 3; i++) a.setXYZ(i, pts[i * 2], 0.02, -pts[i * 2 + 1]);
+    a.needsUpdate = true;
+    this.aimLife = 0.4;
+  }
+
   private update(s: GameState, dt: number): void {
+    this.aimLife = Math.max(0, this.aimLife - dt);
+    (this.aim.material as THREE.LineBasicMaterial).opacity = Math.min(0.55, this.aimLife * 2.5);
+    const cd = this.game.solo.cooldown;
+    const keys = this.game.input.source === 'keys' && this.game.config.kind !== 'local' && this.game.config.kind !== 'attract';
+    this.dashRing.visible = keys;
+    if (keys) {
+      const m = this.view.mallets[this.game.local];
+      this.dashRing.position.x = m.position.x;
+      this.dashRing.position.z = m.position.z;
+      this.dashRing.scale.setScalar(s.mallets[this.game.local].r);
+      (this.dashRing.material as THREE.MeshBasicMaterial).opacity = cd > 0 ? 0.2 : 0.85;
+    }
     // puck trails
     if (s.phase === 'play') {
       for (const p of s.pucks) {

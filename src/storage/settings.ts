@@ -12,6 +12,7 @@ export interface Settings {
   sfx: number;
   muted: boolean;
   shake: boolean;
+  aimLine: boolean;
   p2keys: 'wasd' | 'arrows';
   color: number; // index into MALLET_COLORS
   accent: number;
@@ -25,12 +26,13 @@ const defaults: Settings = {
   matchKind: 'goals',
   minutes: 3,
   powerUps: true,
-  difficulty: 'normal',
+  difficulty: 'easy',
   graphics: 'auto',
   music: 0.6,
   sfx: 0.8,
   muted: false,
   shake: true,
+  aimLine: true,
   p2keys: 'wasd',
   color: 0,
   accent: 9,

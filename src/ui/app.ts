@@ -11,7 +11,7 @@ import { resetStats, saveStats, speedLabel, stats } from '../storage/stats';
 import { button, el, root } from './dom';
 import { Hud, toast } from './hud';
 
-const DIFFS: Difficulty[] = ['easy', 'normal', 'hard', 'adaptive'];
+const DIFFS: Difficulty[] = ['rookie', 'easy', 'normal', 'hard', 'pro', 'adaptive'];
 
 export class App {
   private screen: HTMLElement | null = null;
@@ -166,7 +166,7 @@ export class App {
   /** Buttons to pick the match mode + power-ups; reused by bot, local and online setup. */
   matchOptions(): HTMLElement {
     const box = el('div', 'stack');
-    const modes = el('div', 'row');
+    const modes = el('div', 'row four');
     const opts: Array<[string, Partial<Settings>]> = [
       ['7 goals', { matchKind: 'goals' }],
       ['2 min', { matchKind: 'time', minutes: 2 }],
@@ -222,15 +222,18 @@ export class App {
           b.setAttribute('aria-pressed', String(on));
         });
         note.textContent = {
-          easy: 'Slow and forgiving. Good for a first game.',
+          rookie: 'Slow and careful. Perfect for a first game.',
+          easy: 'Playful but sloppy.',
           normal: 'A fair fight.',
-          hard: 'Fast, accurate and loves bank shots.',
+          hard: 'Aggressive and loves bank shots.',
+          pro: 'Patient, tricky and very fast.',
           adaptive: 'Gets tougher when you lead, eases off when you trail.',
         }[settings.difficulty];
       };
       paint();
       row.append(...btns);
       p.append(el('h3', '', 'Difficulty'), row, note);
+      if (!PointerInput.touchSeen) p.append(el('p', 'hint', 'Steer with the mouse, or with W A S D / arrow keys (Shift or Space = dash).'));
     } else {
       p.append(
         el(
@@ -407,6 +410,7 @@ export class App {
       el('h3', '', 'Game'),
       cycle('Graphics', 'graphics', [['auto', 'Auto'], ['high', 'High'], ['low', 'Low']]),
       cycle('Screen shake', 'shake', [[true, 'On'], [false, 'Off']]),
+      cycle('Aim line', 'aimLine', [[true, 'On'], [false, 'Off']]),
       cycle('Power-ups', 'powerUps', [[true, 'On'], [false, 'Off']]),
       cycle('Player 2 keys', 'p2keys', [['wasd', 'W A S D'], ['arrows', 'Arrows']]),
     );

@@ -80,15 +80,15 @@ Spec: `SPEC.md`. Working rules: `CLAUDE.md`.
 # v2 plan (after Levi's first playtest) — see `SPEC-V2.md`
 
 ## Phase 10 — Controls, feel & bot rebalance (DO FIRST)
-- [ ] Mallet 1:1 under pointer, no smoothing, high safety cap, swept mallet–puck collision (SPEC-V2 §A)
-- [ ] Hit strength from real mallet velocity; raise PUCK_MAX, retune; puck radius ~0.045
-- [ ] Local mallet rendered at latest target; pick at grip height; hide cursor over table
-- [ ] Aim line after hard hits (+ settings toggle)
-- [ ] WASD/arrows solo with auto-switch + dash (Shift/Space) with cooldown ring
-- [ ] Bot: Rookie / Easy / Normal / Hard / Pro / Adaptive, all clearly weaker than v1 at the same name; default Easy
-- [ ] Human-like bot: move repertoire with anti-repeat memory, irregular rhythm, risk-taking, mood, idle motion, human mistakes, personality per level (SPEC-V2 §A 'Human-like bot')
-- [ ] New vitest tests (fast mallet always hits; mallet reaches target in 1 tick)
-- [ ] **Ask Levi to playtest** (controls + one game per bot level) and tune from his feedback
+- [x] Mallet 1:1 under pointer, no smoothing, high safety cap, swept mallet–puck collision (SPEC-V2 §A)
+- [x] Hit strength from real mallet velocity; raise PUCK_MAX, retune; puck radius ~0.045
+- [x] Local mallet rendered at latest target; pick at grip height; hide cursor over table
+- [x] Aim line after hard hits (+ settings toggle)
+- [x] WASD/arrows solo with auto-switch + dash (Shift/Space) with cooldown ring
+- [x] Bot: Rookie / Easy / Normal / Hard / Pro / Adaptive, all clearly weaker than v1 at the same name; default Easy
+- [x] Human-like bot: move repertoire with anti-repeat memory, irregular rhythm, risk-taking, mood, idle motion, human mistakes, personality per level (SPEC-V2 §A 'Human-like bot')
+- [x] New vitest tests (fast mallet always hits; mallet reaches target in 1 tick)
+- [ ] **Ask Levi to playtest** (asked 2026-11-16, waiting for feedback) (controls + one game per bot level) and tune from his feedback
 **Done when:** Levi says hitting and aiming feel good and Normal is a fair fight.
 
 ## Phase 11 — Campaign engine + World 1

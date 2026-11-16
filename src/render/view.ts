@@ -18,7 +18,10 @@ export class View {
   readonly lamp: THREE.SpotLight;
   private pucks = new Map<number, THREE.Group>();
   private ray = new THREE.Raycaster();
-  private plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+  // pick at mallet-grip height so the cursor visually sits on the mallet (camera is tilted)
+  private plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.045);
+  /** mallets steered by a human at this device are drawn at their newest position (no interpolation delay) */
+  direct: [boolean, boolean] = [false, false];
   private tmp = new THREE.Vector3();
   private goalW: [number, number] = [T.GOAL_HALF, T.GOAL_HALF];
   private camBase = new THREE.Vector3();
@@ -160,7 +163,8 @@ export class View {
     for (const i of [0, 1] as const) {
       const m = s.mallets[i];
       const g = this.mallets[i];
-      g.position.set(lerp(m.px, m.x, alpha), 0, -lerp(m.py, m.y, alpha));
+      const a = this.direct[i] ? 1 : alpha;
+      g.position.set(lerp(m.px, m.x, a), 0, -lerp(m.py, m.y, a));
       g.scale.setScalar(m.r / T.MALLET_R);
       const target = goalHalf(s, i);
       this.goalW[i] = lerp(this.goalW[i], target, Math.min(1, dt * 8));
