@@ -3,15 +3,15 @@
 > Update this file before every push. The next model only has the repo — write so they can continue instantly.
 
 ## Current status
-- **Phase:** 6 (starting) — Phases 1–5 done: the complete OFFLINE game is finished and live
+- **Phase:** 6–7 built, waiting for human playtest. Phase 8 (matchmaking) blocked on Levi. Phase 9 partly done.
 - **Last worked by:** Fable (2026-11-16)
 - **Live URL:** https://levivandam.github.io/Airbattle-/ (live)
 
 ## Next step
-Phase 6 (online, room codes): create `src/net/peer.ts` (PeerJS wrapper), `src/net/protocol.ts` (message types), `src/net/online.ts` (lobby screens + host/guest sync). Hooks that already exist for this:
-- `Game.afterTick(s, events)` — host: send snapshots/events. `Game.external(dt)` — guest: replace the local sim with network state. `Game.emit(e)` — guest: replay host events locally (sound, HUD, particles).
-- `App.onlineMenu` (adds the "Online" button to the main menu when set), `App.startMatch('host'|'guest', controllers, configOverrides, otherColor)`, `App.onLeaveMatch`, `App.onRematch`, `App.message(...)`, `App.custom(node)`.
-- Guest = player 1, camera flipped (`view.setCamera(true, 15)` happens in startMatch for kind 'guest').
+1. **Wait for Levi's playtest feedback** (feel of controls/puck speed, bot difficulty, sound/music mix, power-up balance, and whether online works between two real devices). Tune numbers: physics in `src/core/physics.ts` + `T` in `core/state.ts`, bot in `src/ai/botConfig.ts`, power-up durations in `DEFS` (`src/core/powerups/index.ts`), music in `src/audio/music.ts`.
+2. If real-device online fails to connect on some networks: PeerJS uses only STUN by default; add a TURN server to the `Peer` options in `src/net/peer.ts` (needs a free TURN account, ask Levi).
+3. Phase 8 (Quick match): ask Levi to create a Firebase/Supabase project first (see PLAN.md).
+4. Phase 9: final QA pass on real laptop + phone.
 
 ## How to check things quickly
 - `npm test` — headless physics/bot sanity tests (vitest).
@@ -31,11 +31,17 @@ Phase 6 (online, room codes): create `src/net/peer.ts` (PeerJS wrapper), `src/ne
 
 - 2026-11-16 — Phase 5: audio (`src/audio/engine.ts`, `sfx.ts`, `music.ts` — fully synthesized, adaptive levels 0–3 switching on bar boundaries, driven from `main.ts` by `intensity()`), effects (`src/render/fx.ts`: particles, puck trail, screen shake, goal light flash, slow-mo + zoom on the winning goal). NOTE: audio could not be listened to in the sandbox (headless) — only checked that it runs without errors. Levi should judge the sound/music mix.
 
+- 2026-11-16 — Phase 6: online with room codes. `src/net/peer.ts` (PeerJS transport, lazy-loaded; `?net=local` = BroadcastChannel transport for testing two tabs), `src/net/protocol.ts`, `src/net/online.ts` (lobby screens, host-authoritative snapshots at 30 Hz, guest interpolation 100 ms + own-mallet prediction, events with ack, ping, disconnect + rematch, `?room=CODE` invite links). Tested end-to-end with two tabs via `?net=local`.
+- 2026-11-16 — README.md written for Levi.
+
 ## In progress
 - (nothing)
 
 ## Known bugs / issues
-- (none known) — feel/balance has only been checked with bots and screenshots, not by a human yet.
+- Feel/balance has only been checked with bots and screenshots, not by a human yet.
+- Online over the real PeerJS broker could NOT be tested from the sandbox (no access to 0.peerjs.com). Only the `?net=local` transport was tested. First real test must be done by Levi.
+- Audio was never listened to (headless sandbox).
+- No TURN server: players behind strict NAT (some mobile/school networks) may fail to connect; the UI shows a friendly error after 12 s.
 
 ## Decisions log
 - 2026-11-16 — Stack: Vite + TS + Three.js, own 2D physics, PeerJS for online, procedural adaptive music by default. Offline game fully finished (Phase 5) before online work (Phase 6). Core 6 power-ups first, extra 6 later. Matchmaking last and needs Levi's Firebase/Supabase account.

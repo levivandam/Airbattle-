@@ -5,6 +5,7 @@ import { Sfx } from './audio/sfx';
 import { intensity } from './core/match';
 import { Game } from './game';
 import { PointerInput } from './input/pointer';
+import { Online } from './net/online';
 import { Fx } from './render/fx';
 import { PowerFx } from './render/powerfx';
 import { View } from './render/view';
@@ -66,6 +67,16 @@ game.onFrame((s) => {
   const playing = scene === 'match' && game.config.kind !== 'attract' && s.phase !== 'over';
   music.setLevel(playing ? intensity(s) : 0);
 });
+
+// ---------- online ----------
+const online = new Online(app, game);
+app.afterTitle = () => {
+  const code = Online.inviteCode();
+  if (code.length !== 5) return false;
+  history.replaceState(null, '', location.pathname + (location.search.includes('net=local') ? '?net=local' : ''));
+  online.join(code);
+  return true;
+};
 
 app.title();
 

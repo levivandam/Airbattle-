@@ -52,16 +52,17 @@ Spec: `SPEC.md`. Working rules: `CLAUDE.md`.
 **Done when:** the offline game feels complete and polished. ← **This is the "minimum finished game".**
 
 ## Phase 6 — Online with room codes
-- [ ] PeerJS integration, create/join room, `?room=` link, copy button
-- [ ] Host-authoritative sim, guest input, snapshots ~30 Hz, interpolation, own-mallet prediction, rotated camera for guest
-- [ ] Power-ups, goals, match end, rematch synced via events
-- [ ] Ping display, disconnect handling, friendly error if PeerJS broker unreachable
-- [ ] Test with two browser tabs (and, if possible, laptop + phone)
+- [x] PeerJS integration, create/join room, `?room=` link, copy button
+- [x] Host-authoritative sim, guest input, snapshots ~30 Hz, interpolation, own-mallet prediction, rotated camera for guest
+- [x] Power-ups, goals, match end, rematch synced via events
+- [x] Ping display, disconnect handling, friendly error if PeerJS broker unreachable
+- [x] Test with two browser tabs (done with the `?net=local` test transport)
+- [ ] **Real-internet test with PeerJS between two devices (laptop + phone) — NOT done yet, needs Levi + a friend**
 **Done when:** Levi can send a link to a friend and play a full match with power-ups.
 
 ## Phase 7 — Extra power-ups (6)
-- [ ] Speed Boost, Ghost Puck, Fast Puck, Shrink, Reverse, Ice Rink (SPEC §7.2) — offline and online
-- [ ] Balance pass on all 12; record tuning in PROGRESS.md
+- [x] Speed Boost, Ghost Puck, Fast Puck, Shrink, Reverse, Ice Rink (SPEC §7.2) — offline and online
+- [ ] Balance pass on all 12 after human playtesting; record tuning in PROGRESS.md
 
 ## Phase 8 — Quick match (matchmaking) — NEEDS LEVI
 - [ ] **Stop and ask Levi** to create a free Firebase or Supabase project (explain step by step) and give you the public config keys
@@ -70,5 +71,5 @@ Spec: `SPEC.md`. Working rules: `CLAUDE.md`.
 
 ## Phase 9 — Final polish & QA
 - [ ] One full test pass on laptop + phone (all modes), fix bugs
-- [ ] README for Levi: how to play, how to share, how the site updates
+- [x] README for Levi: how to play, how to share, how the site updates
 - [ ] Performance check (fps on Low/High)

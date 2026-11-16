@@ -27,6 +27,8 @@ export class App {
   /** fired on every screen change: 'lobby' or 'match' (music) */
   onScene: (scene: 'lobby' | 'match') => void = () => {};
   onUnlock: () => void = () => {};
+  /** return true to skip the main menu after the title screen (invite links) */
+  afterTitle: (() => boolean) | null = null;
   names: [string, string] = ['YOU', 'BOT'];
 
   constructor(
@@ -128,6 +130,7 @@ export class App {
     s.append(logo, el('div', 'tag', 'Arcade air hockey'), el('div', 'tag blink', PointerInput.touchSeen ? 'Tap to start' : 'Click to start'));
     const go = () => {
       this.onUnlock();
+      if (this.afterTitle && this.afterTitle()) return;
       this.menu();
     };
     s.addEventListener('click', go);
