@@ -43,12 +43,12 @@ Spec: `SPEC.md`. Working rules: `CLAUDE.md`.
 **Done when:** all 6 work vs bot and in local PvP, with visible effects and no crashes over a few full matches.
 
 ## Phase 5 — Audio, effects, stats, customization
-- [ ] SFX set (SPEC §8.1)
-- [ ] Adaptive music engine L0–L3 with crossfades on bar boundaries, triggers per SPEC §8.2 (procedural by default; file-stem support optional)
-- [ ] Effects: screen shake, goal particles + light flash, puck trail, slow-mo winning goal
-- [ ] Stats screen + localStorage
-- [ ] Mallet color picker
-- [ ] Graphics High/Low + auto-downgrade
+- [x] SFX set (SPEC §8.1)
+- [x] Adaptive music engine L0–L3 with crossfades on bar boundaries, triggers per SPEC §8.2 (procedural by default; file-stem support optional)
+- [x] Effects: screen shake, goal particles + light flash, puck trail, slow-mo winning goal
+- [x] Stats screen + localStorage
+- [x] Mallet color picker
+- [x] Graphics High/Low + auto-downgrade
 **Done when:** the offline game feels complete and polished. ← **This is the "minimum finished game".**
 
 ## Phase 6 — Online with room codes

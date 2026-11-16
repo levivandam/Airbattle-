@@ -3,12 +3,15 @@
 > Update this file before every push. The next model only has the repo — write so they can continue instantly.
 
 ## Current status
-- **Phase:** 5 (starting) — Phases 1–4 done (core, menus/bot levels, local 2P, power-ups)
+- **Phase:** 6 (starting) — Phases 1–5 done: the complete OFFLINE game is finished and live
 - **Last worked by:** Fable (2026-11-16)
 - **Live URL:** https://levivandam.github.io/Airbattle-/ (live)
 
 ## Next step
-Phase 5: `src/audio/sfx.ts` + `src/audio/music.ts` (procedural adaptive music L0–L3, driven by `intensity()` from `core/match.ts` and `app.onScene`), `src/render/fx.ts` (screen shake, goal particles, puck trail, slow-mo on the winning goal via `game.timeScale`). Stats, mallet colours and graphics Low/auto are already done.
+Phase 6 (online, room codes): create `src/net/peer.ts` (PeerJS wrapper), `src/net/protocol.ts` (message types), `src/net/online.ts` (lobby screens + host/guest sync). Hooks that already exist for this:
+- `Game.afterTick(s, events)` — host: send snapshots/events. `Game.external(dt)` — guest: replace the local sim with network state. `Game.emit(e)` — guest: replay host events locally (sound, HUD, particles).
+- `App.onlineMenu` (adds the "Online" button to the main menu when set), `App.startMatch('host'|'guest', controllers, configOverrides, otherColor)`, `App.onLeaveMatch`, `App.onRematch`, `App.message(...)`, `App.custom(node)`.
+- Guest = player 1, camera flipped (`view.setCamera(true, 15)` happens in startMatch for kind 'guest').
 
 ## How to check things quickly
 - `npm test` — headless physics/bot sanity tests (vitest).
@@ -25,6 +28,8 @@ Phase 5: `src/audio/sfx.ts` + `src/audio/music.ts` (procedural adaptive music L0
 - 2026-11-16 — Phase 3: local 2P — mouse (P1) vs keyboard (`src/input/keyboard.ts`, P2), split multi-touch (`src/input/pointer.ts` mode 'split'), two mirrored scoreboards + mirrored banners on touch.
 
 - 2026-11-16 — Phase 4: power-up system in `src/core/powerups/index.ts` (DEFS table, spawn every 8–12 s, pickup by last toucher, refresh-not-stack), visuals in `src/render/powerfx.ts`, HUD chips with countdown rings. **All 12 power-ups are implemented and enabled already** (the 6 extra ones were cheap because physics reads effects through `core/effects.ts`), so Phase 7 is reduced to a balance pass + online check.
+
+- 2026-11-16 — Phase 5: audio (`src/audio/engine.ts`, `sfx.ts`, `music.ts` — fully synthesized, adaptive levels 0–3 switching on bar boundaries, driven from `main.ts` by `intensity()`), effects (`src/render/fx.ts`: particles, puck trail, screen shake, goal light flash, slow-mo + zoom on the winning goal). NOTE: audio could not be listened to in the sandbox (headless) — only checked that it runs without errors. Levi should judge the sound/music mix.
 
 ## In progress
 - (nothing)

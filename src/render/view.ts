@@ -76,6 +76,11 @@ export class View {
     setMalletColors(this.mallets[p], color, accent);
   }
 
+  malletColors(): [number, number] {
+    const c = (g: THREE.Group) => ((g.getObjectByName('body') as THREE.Mesh).material as THREE.MeshStandardMaterial).color.getHex();
+    return [c(this.mallets[0]), c(this.mallets[1])];
+  }
+
   setCamera(flip: boolean, tilt: number): void {
     this.flip = flip;
     this.tilt = tilt;
@@ -110,7 +115,7 @@ export class View {
     ];
     const portrait = window.innerHeight > window.innerWidth;
     const mx = 0.96;
-    const my = portrait ? 0.84 : 0.9;
+    const my = portrait ? 0.84 : 0.82;
     let lo = 1.5;
     let hi = 14;
     for (let i = 0; i < 22; i++) {
