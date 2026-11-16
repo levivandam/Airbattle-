@@ -100,7 +100,8 @@ Spec: `SPEC.md`. Working rules: `CLAUDE.md`.
 **Done when:** World 1 is playable start to finish with stars and the boss reward.
 
 ## Phase 12 — Quick match (matchmaking) — NEEDS LEVI'S FIREBASE CONFIG
-- [ ] Levi created the Firebase project (Realtime Database + Anonymous + Google auth, domain authorised) and gave the web config → `src/net/firebaseConfig.ts`
+- [x] Levi created the Firebase project + Realtime Database and gave the web config → `src/net/firebaseConfig.ts`
+- [ ] Confirm Anonymous + Google auth are enabled and `levivandam.github.io` is an authorized domain
 - [ ] `database.rules.json` + plain-Dutch instructions for Levi to paste them
 - [ ] Nickname, queue with onDisconnect, transaction matching, hand-off to PeerJS room
 - [ ] Bot while waiting + "Opponent found" accept banner

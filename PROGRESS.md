@@ -10,7 +10,7 @@
 ## Next step
 **Read `SPEC-V2.md` first.** Then start **Phase 10** (controls, feel, WASD solo, bot rebalance). Root causes of the bad controls are listed in SPEC-V2 §A: start in `src/core/physics.ts` (`moveMallet`, `collideMallet`, `stepPuck`), `src/core/state.ts` (`T`), `src/game.ts` (HumanPointer), `src/render/view.ts` (pick plane, mallet interpolation), `src/ai/botConfig.ts`.
 
-Firebase (needed for Phase 12): Levi was given step-by-step instructions on 2026-11-16 and will paste the `firebaseConfig` into the chat. If it's not in the repo or chat yet, ask him again. The steps:
+Firebase (needed for Phase 12): **config received and saved in `src/net/firebaseConfig.ts`** (project `airbattle-9491c`, Realtime Database in europe-west1 exists). Levi still had to enable Anonymous + Google sign-in and add the authorized domain (steps 3–4 below) — verify at the start of Phase 12 (an anonymous sign-in error `auth/operation-not-allowed` means it's not enabled). Original steps (Firebase's console menu has moved: Realtime Database is under 'Databases & Storage', Authentication under 'Security'):
 1. https://console.firebase.google.com → Add project "airbattle" → Google Analytics off → Create.
 2. Build → Realtime Database → Create database → location Belgium (europe-west1) → "Start in locked mode".
 3. Build → Authentication → Get started → Sign-in method → enable **Anonymous** and **Google**.
@@ -56,6 +56,7 @@ Firebase (needed for Phase 12): Levi was given step-by-step instructions on 2026
 
 ## Things Levi needs to do
 - [x] Enable GitHub Pages with Source = GitHub Actions (done, deploys work)
-- [ ] (Phase 12) Create the Firebase project and send the web config (steps under 'Next step')
+- [x] (Phase 12) Create the Firebase project and send the web config
+- [ ] (Phase 12) Enable Anonymous + Google sign-in and add `levivandam.github.io` as authorized domain (confirm with Levi)
 - [ ] (Phase 12, optional) Free TURN server account (Metered or Cloudflare) for better connections with strangers
 - [ ] (Optional) Supply CC0 music stems if he prefers real tracks over generated music
