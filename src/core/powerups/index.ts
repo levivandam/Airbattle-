@@ -10,3 +10,6 @@ export function tickPowerUps(s: GameState, dt: number, ev: GameEvent[]): void {
     for (const e of done) ev.push({ t: 'expire', type: e.type, player: e.owner });
   }
 }
+
+import type { PowerUpType } from '../state';
+export const CORE_TYPES: PowerUpType[] = ['power', 'big', 'multi', 'shield', 'freeze', 'smallgoal'];

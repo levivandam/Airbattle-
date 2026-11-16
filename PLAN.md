@@ -23,15 +23,15 @@ Spec: `SPEC.md`. Working rules: `CLAUDE.md`.
 **Done when:** you can play a full match to 7 vs the bot on laptop and phone, and it feels good (hard hits possible, no tunneling).
 
 ## Phase 2 — Game flow & bot levels
-- [ ] Title screen, main menu, pause, countdown, results screen, rematch
-- [ ] Settings screen (match mode: goals / time 2-3-5 min, power-ups toggle placeholder, graphics, volumes, screen shake) persisted in localStorage
-- [ ] Time mode + golden goal; MATCH POINT banner
-- [ ] Bot: Easy / Normal / Hard / Adaptive per SPEC §4.1, parameter table in `src/ai/botConfig.ts`
+- [x] Title screen, main menu, pause, countdown, results screen, rematch
+- [x] Settings screen (match mode: goals / time 2-3-5 min, power-ups toggle placeholder, graphics, volumes, screen shake) persisted in localStorage
+- [x] Time mode + golden goal; MATCH POINT banner
+- [x] Bot: Easy / Normal / Hard / Adaptive per SPEC §4.1, parameter table in `src/ai/botConfig.ts`
 **Done when:** a non-technical person can open the URL and play any bot level in either mode without help.
 
 ## Phase 3 — Local 2 players
-- [ ] Laptop: mouse vs WASD/arrows (with inertia), key layout setting
-- [ ] Touch: split-screen multi-touch, top HUD rotated 180°
+- [x] Laptop: mouse vs WASD/arrows (with inertia), key layout setting
+- [x] Touch: split-screen multi-touch, top HUD rotated 180°
 **Done when:** two people can play on one laptop and on one phone/tablet laid flat.
 
 ## Phase 4 — Core power-ups (6)

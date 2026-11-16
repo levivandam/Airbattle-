@@ -41,6 +41,11 @@ html, body {
   background: linear-gradient(#1d1822, #110e15); border: 2px solid #3a2f2a; border-radius: 10px;
   box-shadow: 0 4px 0 #000, inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
+.board.near { top: auto; bottom: max(8px, env(safe-area-inset-bottom)); }
+.board.far { transform: translateX(-50%) rotate(180deg); }
+.board.near .clock, .board.far .clock { top: auto; bottom: 100%; transform: translate(-50%, -4px); border: 2px solid #3a2f2a; border-bottom: 0; border-radius: 8px 8px 0 0; }
+.board.near .name, .board.far .name { font-size: 0; gap: 0; }
+.fx { position: absolute; inset: 0; }
 .board .name { font: 700 13px var(--body); letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.9; display: flex; align-items: center; gap: 6px; }
 .board .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c, var(--red)); box-shadow: 0 0 0 2px rgba(255,255,255,.15); }
 .board .digits {

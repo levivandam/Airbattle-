@@ -9,31 +9,38 @@ export interface HudOptions {
   split: boolean; // two players on one touch screen: mirror banners for the top player
 }
 
+interface Board {
+  node: HTMLElement;
+  digits: [HTMLElement, HTMLElement];
+  names: [HTMLElement, HTMLElement];
+  clock: HTMLElement;
+  view: PlayerId; // whose point of view (own score on the left)
+}
+
+function makeBoard(view: PlayerId, cls: string): Board {
+  const node = el('div', 'board ' + cls);
+  const digits: [HTMLElement, HTMLElement] = [el('div', 'digits', '0'), el('div', 'digits', '0')];
+  const names: [HTMLElement, HTMLElement] = [el('div', 'name'), el('div', 'name')];
+  const clock = el('div', 'clock');
+  node.append(names[0], digits[0], el('div', 'sep', ':'), digits[1], names[1], clock);
+  return { node, digits, names, clock, view };
+}
+
 export class Hud {
   readonly node = el('div', 'hud');
-  private board = el('div', 'board');
-  private digits: [HTMLElement, HTMLElement];
-  private clock = el('div', 'clock');
+  private boards: Board[] = [];
   private banners: HTMLElement[] = [];
   readonly cornerRight = el('div', 'corner right');
   readonly cornerLeft = el('div', 'corner left');
+  readonly fx = el('div', 'fx');
   private opts: HudOptions = { names: ['YOU', 'BOT'], colors: ['#d3352b', '#2a5bc7'], local: 0, split: false };
   private lastClock = '';
 
   constructor() {
-    const mk = (i: number) => {
-      const name = el('div', 'name');
-      name.dataset.i = String(i);
-      return name;
-    };
-    const d0 = el('div', 'digits', '0');
-    const d1 = el('div', 'digits', '0');
-    this.digits = [d0, d1];
-    this.board.append(mk(0), d0, el('div', 'sep', ':'), d1, mk(1), this.clock);
     const b1 = el('div', 'banner');
     const b2 = el('div', 'banner rot');
     this.banners = [b1, b2];
-    this.node.append(this.board, b1, b2, this.cornerLeft, this.cornerRight);
+    this.node.append(b1, b2, this.fx, this.cornerLeft, this.cornerRight);
     this.node.style.display = 'none';
     root().append(this.node);
   }
@@ -41,14 +48,24 @@ export class Hud {
   show(o: HudOptions): void {
     this.opts = o;
     this.node.style.display = '';
-    this.board.querySelectorAll<HTMLElement>('.name').forEach((n) => {
-      const i = Number(n.dataset.i);
-      n.replaceChildren();
-      const dot = el('span', 'dot');
-      dot.style.setProperty('--c', o.colors[i]);
-      if (i === 0) n.append(dot, o.names[0]);
-      else n.append(o.names[1], dot);
-    });
+    for (const b of this.boards) b.node.remove();
+    this.boards = o.split ? [makeBoard(0, 'near'), makeBoard(1, 'far')] : [makeBoard(o.local, '')];
+    this.lastClock = '';
+    for (const b of this.boards) {
+      // o.names / o.colors are given as [local player, opponent]
+      const idx = (who: PlayerId) => (who === o.local ? 0 : 1);
+      const them: PlayerId = b.view === 0 ? 1 : 0;
+      const fill = (n: HTMLElement, who: PlayerId, dotFirst: boolean) => {
+        const dot = el('span', 'dot');
+        dot.style.setProperty('--c', o.colors[idx(who)]);
+        const label = o.split ? (who === b.view ? 'YOU' : 'THEM') : o.names[idx(who)];
+        if (dotFirst) n.append(dot, label);
+        else n.append(label, dot);
+      };
+      fill(b.names[0], b.view, true);
+      fill(b.names[1], them, false);
+      this.node.prepend(b.node);
+    }
     this.banners[0].style.top = o.split ? '72%' : '50%';
     this.banners[1].style.top = '28%';
     this.banners[1].style.display = o.split ? '' : 'none';
@@ -69,21 +86,23 @@ export class Hud {
   }
 
   update(s: GameState): void {
-    const l = this.opts.local;
-    const left = String(s.score[l]);
-    const right = String(s.score[l === 0 ? 1 : 0]);
-    if (this.digits[0].textContent !== left) this.digits[0].textContent = left;
-    if (this.digits[1].textContent !== right) this.digits[1].textContent = right;
     let c = '';
     if (s.golden) c = 'GOLDEN GOAL';
     else if (s.mode.kind === 'time') {
       const t = Math.ceil(s.timeLeft);
       c = Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0');
     } else c = 'FIRST TO ' + s.mode.target;
-    if (c !== this.lastClock) {
-      this.lastClock = c;
-      this.clock.textContent = c;
-      this.clock.classList.toggle('hot', s.golden || (s.mode.kind === 'time' && s.timeLeft <= 30));
+    const clockChanged = c !== this.lastClock;
+    this.lastClock = c;
+    for (const b of this.boards) {
+      const left = String(s.score[b.view]);
+      const right = String(s.score[b.view === 0 ? 1 : 0]);
+      if (b.digits[0].textContent !== left) b.digits[0].textContent = left;
+      if (b.digits[1].textContent !== right) b.digits[1].textContent = right;
+      if (clockChanged) {
+        b.clock.textContent = c;
+        b.clock.classList.toggle('hot', s.golden || (s.mode.kind === 'time' && s.timeLeft <= 30));
+      }
     }
   }
 
@@ -99,9 +118,11 @@ export class Hud {
         break;
       case 'goal':
         this.banner('GOAL!', colorOf(e.scorer));
-        this.board.classList.remove('bump');
-        void this.board.offsetWidth;
-        this.board.classList.add('bump');
+        for (const b of this.boards) {
+          b.node.classList.remove('bump');
+          void b.node.offsetWidth;
+          b.node.classList.add('bump');
+        }
         break;
       case 'matchpoint':
         setTimeout(() => this.banner('MATCH POINT', 'amber', true), 1150);

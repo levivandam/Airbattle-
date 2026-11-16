@@ -3,12 +3,12 @@
 > Update this file before every push. The next model only has the repo — write so they can continue instantly.
 
 ## Current status
-- **Phase:** 2 (starting) — Phase 1 core game done
+- **Phase:** 4 (starting) — Phases 1–3 done (core, menus/bot levels, local 2P)
 - **Last worked by:** Fable (2026-11-16)
 - **Live URL:** https://levivandam.github.io/Airbattle-/ (not deployed yet)
 
 ## Next step
-Phase 2: screens in `src/ui/screens.ts` (title, main menu, bot difficulty, settings, pause, results), `src/storage/settings.ts`, wire into `main.ts` (currently main.ts auto-starts a bot match). Bot levels already exist in `src/ai/botConfig.ts`; time mode + golden goal + match point already work in `src/core/match.ts`.
+Phase 4: implement spawning/pickup/activation in `src/core/powerups/index.ts` (queries already in `core/effects.ts`, physics already honours them), token + shield + freeze visuals in `src/render/powerfx.ts` (register via `view.layers`), HUD effect icons with countdown rings in `src/ui/hud.ts` (`hud.fx` container exists). `CORE_TYPES` lists the 6 core power-ups.
 
 ## How to check things quickly
 - `npm test` — headless physics/bot sanity tests (vitest).
@@ -20,6 +20,9 @@ Phase 2: screens in `src/ui/screens.ts` (title, main menu, bot difficulty, setti
 - 2026-11-16 — Phase 0: Vite + TS + Three.js scaffold, placeholder page, `.github/workflows/deploy.yml` (Pages via Actions, `enablement: true`).
 
 - 2026-11-16 — Phase 1: core sim (`src/core/*`: state, physics, match rules, effect queries, sim step), bot (`src/ai`), Three.js view (`src/render`), pointer input, HUD scoreboard/banners. Bot-vs-bot tests pass. The power-up *queries* (`core/effects.ts`) already exist; spawning/pickup comes in Phase 4 (`core/powerups/index.ts` is a stub).
+
+- 2026-11-16 — Phase 2: `src/ui/app.ts` (title, menu, bot setup, settings, stats, pause, results), `src/storage/settings.ts` + `stats.ts`, bot levels incl. adaptive, time mode + golden goal, attract-mode (bot vs bot) behind the menus, auto Low graphics.
+- 2026-11-16 — Phase 3: local 2P — mouse (P1) vs keyboard (`src/input/keyboard.ts`, P2), split multi-touch (`src/input/pointer.ts` mode 'split'), two mirrored scoreboards + mirrored banners on touch.
 
 ## In progress
 - (nothing)
