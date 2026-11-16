@@ -7,10 +7,10 @@ Spec: `SPEC.md`. Working rules: `CLAUDE.md`.
 ---
 
 ## Phase 0 — Project setup
-- [ ] Vite + TypeScript + Three.js project; `base: './'` in `vite.config.ts`
-- [ ] Folder structure as in CLAUDE.md
-- [ ] GitHub Actions workflow `.github/workflows/deploy.yml` building and deploying to GitHub Pages (actions/upload-pages-artifact + actions/deploy-pages)
-- [ ] `npm run build` passes; push; tell Levi he must enable **Settings → Pages → Source: GitHub Actions** once (if the deploy fails for that reason)
+- [x] Vite + TypeScript + Three.js project; `base: './'` in `vite.config.ts`
+- [x] Folder structure as in CLAUDE.md
+- [x] GitHub Actions workflow `.github/workflows/deploy.yml` building and deploying to GitHub Pages (actions/upload-pages-artifact + actions/deploy-pages)
+- [x] `npm run build` passes; push; tell Levi he must enable **Settings → Pages → Source: GitHub Actions** once (if the deploy fails for that reason)
 **Done when:** a placeholder page with a spinning 3D table-shaped box is live on the Pages URL.
 
 ## Phase 1 — Core game (vs simple bot)

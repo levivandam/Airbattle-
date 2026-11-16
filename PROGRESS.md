@@ -3,15 +3,17 @@
 > Update this file before every push. The next model only has the repo — write so they can continue instantly.
 
 ## Current status
-- **Phase:** 0 (not started)
-- **Last worked by:** Opus (planning only, 2026-11-16)
+- **Phase:** 1 (starting) — Phase 0 scaffold pushed, deploy to be verified
+- **Last worked by:** Fable (2026-11-16)
 - **Live URL:** https://levivandam.github.io/Airbattle-/ (not deployed yet)
 
 ## Next step
-Start Phase 0 in PLAN.md: scaffold Vite + TypeScript + Three.js, add the Pages deploy workflow, push, verify the deploy.
+Phase 1: write `src/core/state.ts` + `src/core/physics.ts` (pure TS), then the Three.js table renderer and input. Also verify the Pages deploy succeeded (`gh run list -R levivandam/Airbattle-`).
 
 ## Done
 - 2026-11-16 — Spec, plan and working rules written with Levi (SPEC.md, PLAN.md, CLAUDE.md).
+
+- 2026-11-16 — Phase 0: Vite + TS + Three.js scaffold, placeholder page, `.github/workflows/deploy.yml` (Pages via Actions, `enablement: true`).
 
 ## In progress
 - (nothing)
